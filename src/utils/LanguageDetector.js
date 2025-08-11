@@ -53,7 +53,7 @@ export class LanguageDetector {
       json: [
         /^\s*[{[]/,
         /\.(json)$/i,
-        /"[^"]*"\s*:\s*("[^"]*"|\d+|true|false|null|{|[)/,
+        /"[^"]*"\s*:\s*("[^"]*"|\d+|true|false|null|{|\[)/,
         /^\s*\{[\s\S]*\}\s*$/,
         /^\s*\[[\s\S]*\]\s*$/
       ],
