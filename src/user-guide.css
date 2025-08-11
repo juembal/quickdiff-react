@@ -1,0 +1,634 @@
+/**
+ * QuickDiff User Guide Styles
+ * Styles for interactive tooltips, guided tour, and help system
+ */
+
+/* Help Button */
+.help-button {
+    background: linear-gradient(135deg, #000000, #333333) !important;
+    color: #ffffff !important;
+    border: 2px solid #B6B09F !important;
+    border-radius: 50% !important;
+    width: 45px !important;
+    height: 45px !important;
+    font-size: 20px !important;
+    font-weight: bold !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    box-shadow: 
+        0 4px 15px rgba(0, 0, 0, 0.3),
+        0 0 0 0 rgba(182, 176, 159, 0.5) !important;
+    z-index: 1000 !important;
+    position: relative !important;
+    animation: helpButtonPulse 2s infinite !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+.help-button,
+.help-button:hover,
+.help-button:focus,
+.help-button:active,
+.help-button:visited,
+#help-button,
+#help-button:hover,
+#help-button:focus,
+#help-button:active,
+#help-button:visited {
+    color: #ffffff !important;
+    text-decoration: none !important;
+}
+
+/* Override any button styles that might conflict */
+button.help-button,
+button#help-button,
+.header-controls .help-button,
+.header-controls #help-button {
+    background: linear-gradient(135deg, #000000, #333333) !important;
+    color: #ffffff !important;
+    border: 2px solid #B6B09F !important;
+    font-family: inherit !important;
+}
+
+/* Force white text on all states */
+.help-button *,
+#help-button *,
+.help-button::before,
+#help-button::before,
+.help-button::after,
+#help-button::after {
+    color: #ffffff !important;
+}
+
+/* Ensure emoji/unicode characters are white */
+.help-button,
+#help-button {
+    -webkit-text-fill-color: #ffffff !important;
+    text-fill-color: #ffffff !important;
+}
+
+.help-button:hover {
+    background: linear-gradient(135deg, #333333, #555555);
+    color: #ffffff !important;
+    transform: scale(1.15);
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 0 0 10px rgba(182, 176, 159, 0.2);
+    animation: none;
+}
+
+.help-button:active {
+    transform: scale(1.05);
+    color: #ffffff !important;
+}
+
+@keyframes helpButtonPulse {
+    0% {
+        box-shadow: 
+            0 4px 15px rgba(0, 0, 0, 0.3),
+            0 0 0 0 rgba(182, 176, 159, 0.5);
+    }
+    50% {
+        box-shadow: 
+            0 4px 15px rgba(0, 0, 0, 0.3),
+            0 0 0 8px rgba(182, 176, 159, 0.2);
+    }
+    100% {
+        box-shadow: 
+            0 4px 15px rgba(0, 0, 0, 0.3),
+            0 0 0 0 rgba(182, 176, 159, 0);
+    }
+}
+
+/* Custom Tooltips */
+.custom-tooltip {
+    position: absolute;
+    background: var(--tooltip-bg, #000000);
+    color: var(--tooltip-text, #F2F2F2);
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #B6B09F;
+    font-size: 13px;
+    max-width: 250px;
+    z-index: 10000;
+    pointer-events: none;
+    opacity: 0;
+    animation: tooltipFadeIn 0.2s ease forwards;
+    box-shadow: 0 4px 12px rgba(182, 176, 159, 0.3);
+    line-height: 1.4;
+}
+
+.custom-tooltip::before {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--tooltip-bg, #000000);
+}
+
+.custom-tooltip.tooltip-below::before {
+    top: -12px;
+    border-top-color: transparent;
+    border-bottom-color: var(--tooltip-bg, #000000);
+}
+
+@keyframes tooltipFadeIn {
+    from { opacity: 0; transform: translateY(-5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Guide Overlay */
+.guide-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 9999;
+    display: none;
+}
+
+[data-theme="dark"] .guide-overlay {
+    background: rgba(0, 0, 0, 0.9);
+}
+
+.guide-spotlight {
+    position: absolute;
+    background: transparent;
+    border: 3px solid var(--primary-color, #B6B09F);
+    border-radius: 8px;
+    box-shadow: 
+        0 0 0 9999px rgba(0, 0, 0, 0.8),
+        0 0 20px var(--primary-color, #B6B09F),
+        inset 0 0 20px rgba(182, 176, 159, 0.2);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+[data-theme="dark"] .guide-spotlight {
+    border-color: #B6B09F;
+    box-shadow: 
+        0 0 0 9999px rgba(0, 0, 0, 0.9),
+        0 0 25px #B6B09F,
+        inset 0 0 25px rgba(182, 176, 159, 0.3);
+}
+
+.guide-tooltip {
+    position: absolute;
+    background: var(--bg-color, #EAE4D5);
+    border: 1px solid var(--border-color, #B6B09F);
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(182, 176, 159, 0.3);
+    max-width: 400px;
+    min-width: 300px;
+    z-index: 10001;
+    animation: guideTooltipSlideIn 0.3s ease;
+}
+
+@keyframes guideTooltipSlideIn {
+    from { 
+        opacity: 0; 
+        transform: scale(0.9) translateY(-10px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: scale(1) translateY(0); 
+    }
+}
+
+.guide-tooltip-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px 12px;
+    border-bottom: 1px solid var(--border-color, #B6B09F);
+}
+
+.guide-tooltip-title {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-color, #000000);
+}
+
+.guide-close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted, #000000);
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.guide-close-btn:hover {
+    background: var(--hover-bg, #F2F2F2);
+    color: var(--text-color, #000000);
+}
+
+[data-theme="dark"] .guide-close-btn {
+    color: #a0aec0;
+}
+
+[data-theme="dark"] .guide-close-btn:hover {
+    background: #4a5568;
+    color: #f7fafc;
+}
+
+.guide-tooltip-content {
+    padding: 16px 20px;
+    color: var(--text-color, #000000);
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.guide-tooltip-content strong {
+    color: var(--primary-color, #000000);
+    font-weight: 600;
+}
+
+.guide-tooltip-content ul {
+    margin: 8px 0;
+    padding-left: 20px;
+}
+
+.guide-tooltip-content li {
+    margin: 4px 0;
+}
+
+.guide-tooltip-footer {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border-color, #B6B09F);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.guide-progress {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.guide-step-counter {
+    font-size: 12px;
+    color: var(--text-muted, #666);
+    white-space: nowrap;
+}
+
+.guide-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border-color, #eee);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.guide-progress-fill {
+    height: 100%;
+    background: var(--primary-color, #000000);
+    border-radius: 2px;
+    transition: width 0.3s ease;
+}
+
+[data-theme="dark"] .guide-progress-bar {
+    background: #4a5568;
+}
+
+[data-theme="dark"] .guide-progress-fill {
+    background: #000000;
+}
+
+[data-theme="dark"] .guide-step-counter {
+    color: #a0aec0;
+}
+
+.guide-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: 16px;
+}
+
+.guide-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-width: 70px;
+}
+
+.guide-btn-primary {
+    background: var(--primary-color, #000000);
+    color: #F2F2F2;
+}
+
+.guide-btn-primary:hover:not(:disabled) {
+    background: var(--primary-hover, #B6B09F);
+    color: #000000;
+}
+
+.guide-btn-secondary {
+    background: var(--secondary-bg, #F2F2F2);
+    color: var(--text-color, #000000);
+    border: 1px solid var(--border-color, #B6B09F);
+}
+
+.guide-btn-secondary:hover:not(:disabled) {
+    background: var(--hover-bg, #EAE4D5);
+}
+
+.guide-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Quick Help Panel */
+.quick-help-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--bg-color, #EAE4D5);
+    border: 1px solid var(--border-color, #B6B09F);
+    border-radius: 12px;
+    box-shadow: 0 12px 48px rgba(182, 176, 159, 0.3);
+    max-width: 600px;
+    max-height: 80vh;
+    width: 90%;
+    z-index: 10000;
+    display: none;
+    animation: helpPanelSlideIn 0.3s ease;
+}
+
+@keyframes helpPanelSlideIn {
+    from { 
+        opacity: 0; 
+        transform: translate(-50%, -50%) scale(0.9); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translate(-50%, -50%) scale(1); 
+    }
+}
+
+.quick-help-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border-color, #B6B09F);
+}
+
+.quick-help-header h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-color, #333);
+}
+
+.quick-help-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: var(--text-muted, #666);
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.quick-help-close:hover {
+    background: var(--hover-bg, #f5f5f5);
+    color: var(--text-color, #333);
+}
+
+.quick-help-content {
+    padding: 20px 24px;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.help-section {
+    margin-bottom: 24px;
+}
+
+.help-section:last-child {
+    margin-bottom: 0;
+}
+
+.help-section h4 {
+    margin: 0 0 12px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--primary-color, #000000);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.help-section ul {
+    margin: 0;
+    padding-left: 20px;
+    color: var(--text-color, #555);
+}
+
+.help-section li {
+    margin: 6px 0;
+    line-height: 1.5;
+}
+
+.help-section strong {
+    color: var(--text-color, #333);
+    font-weight: 600;
+}
+
+/* Keyboard shortcuts styling */
+kbd {
+    background: var(--kbd-bg, #f1f3f4);
+    border: 1px solid var(--kbd-border, #c1c7cd);
+    border-radius: 3px;
+    color: var(--kbd-text, #202124);
+    display: inline-block;
+    font-family: monospace;
+    font-size: 11px;
+    line-height: 1.4;
+    margin: 0 2px;
+    padding: 2px 4px;
+    text-shadow: 0 1px 0 #fff;
+}
+
+/* Dark theme support */
+[data-theme="dark"] .help-button {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: #ffffff !important;
+    border-color: #ffffff;
+    box-shadow: 
+        0 4px 15px rgba(231, 76, 60, 0.4),
+        0 0 0 0 rgba(231, 76, 60, 0.7);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .help-button:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    color: #ffffff !important;
+    box-shadow: 
+        0 6px 20px rgba(231, 76, 60, 0.6),
+        0 0 0 10px rgba(231, 76, 60, 0.1);
+}
+
+[data-theme="dark"] .help-button:active {
+    color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-tooltip {
+    --tooltip-bg: #EAE4D5;
+    --tooltip-text: #000000;
+}
+
+[data-theme="dark"] .guide-tooltip {
+    --bg-color: #EAE4D5;
+    --border-color: #B6B09F;
+    --text-color: #000000;
+    --text-muted: #000000;
+}
+
+[data-theme="dark"] .guide-tooltip {
+    --bg-color: #EAE4D5;
+    --border-color: #B6B09F;
+    --text-color: #000000;
+    --text-muted: #000000;
+    --hover-bg: #F2F2F2;
+    --secondary-bg: #F2F2F2;
+}
+
+[data-theme="dark"] .guide-btn-secondary {
+    background: #F2F2F2 !important;
+    color: #000000 !important;
+    border: 1px solid #B6B09F !important;
+}
+
+[data-theme="dark"] .guide-btn-secondary:hover:not(:disabled) {
+    background: #EAE4D5 !important;
+    color: #000000 !important;
+    border: 1px solid #B6B09F !important;
+}
+
+[data-theme="dark"] .guide-btn-primary {
+    background: #000000 !important;
+    color: #F2F2F2 !important;
+}
+
+[data-theme="dark"] .guide-btn-primary:hover:not(:disabled) {
+    background: #B6B09F !important;
+    color: #000000 !important;
+}
+
+[data-theme="dark"] .quick-help-panel {
+    --bg-color: #EAE4D5;
+    --border-color: #B6B09F;
+    --text-color: #000000;
+    --text-muted: #000000;
+    --hover-bg: #F2F2F2;
+}
+
+[data-theme="dark"] kbd {
+    --kbd-bg: #F2F2F2;
+    --kbd-border: #B6B09F;
+    --kbd-text: #000000;
+}
+
+/* High contrast mode */
+.high-contrast .guide-tooltip,
+.high-contrast .quick-help-panel {
+    border: 2px solid var(--primary-color, #B6B09F);
+    box-shadow: 0 0 20px rgba(182, 176, 159, 0.3);
+}
+
+.high-contrast .custom-tooltip {
+    border: 1px solid var(--primary-color, #B6B09F);
+}
+
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .guide-tooltip {
+        max-width: 90vw;
+        min-width: 280px;
+    }
+    
+    .quick-help-panel {
+        width: 95%;
+        max-height: 90vh;
+    }
+    
+    .guide-tooltip-footer {
+        flex-direction: column;
+        gap: 12px;
+        align-items: stretch;
+    }
+    
+    .guide-progress {
+        order: 2;
+    }
+    
+    .guide-buttons {
+        order: 1;
+        margin-left: 0;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .guide-tooltip-content,
+    .quick-help-content {
+        font-size: 13px;
+    }
+    
+    .guide-btn {
+        padding: 6px 12px;
+        font-size: 12px;
+        min-width: 60px;
+    }
+}
+
+/* Animation for guide activation */
+.guide-active {
+    overflow: hidden;
+}
+
+/* Smooth scrolling for guide navigation */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Accessibility improvements */
+.guide-tooltip:focus-within,
+.quick-help-panel:focus-within {
+    outline: 2px solid var(--primary-color, #B6B09F);
+    outline-offset: 2px;
+}
+
+/* Print styles - hide guide elements */
+@media print {
+    .help-button,
+    .guide-overlay,
+    .quick-help-panel,
+    .custom-tooltip {
+        display: none !important;
+    }
+}
