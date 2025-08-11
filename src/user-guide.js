@@ -1,573 +1,642 @@
 /**
- * QuickDiff User Guide System
- * Interactive tooltips and guided tour for new users
+ * React-Compatible QuickDiff User Guide
+ * Simple spotlight tour on first app open + Quick Guide button
  */
 
-class QuickDiffUserGuide {
+class ReactUserGuide {
     constructor() {
         this.isGuideActive = false;
         this.currentStep = 0;
-        this.guideSteps = [
+        this.tourSteps = [
             {
                 target: '.title-section',
                 title: 'Welcome to QuickDiff! ⚡',
-                content: 'A powerful text comparison tool with multiple diff modes, syntax highlighting, and export options.',
+                content: 'A powerful text comparison tool with multiple diff modes, syntax highlighting, and export options. Perfect for developers, writers, and anyone who needs to compare text efficiently.',
                 position: 'bottom'
             },
             {
                 target: '.header-controls',
-                title: 'Theme & Display Controls',
-                content: 'Toggle high contrast (🔆) for better accessibility and dark/light theme (🌓) for comfortable viewing.',
+                title: 'Theme & Accessibility Controls',
+                content: '🔆 High Contrast (Ctrl+H) - Better visibility for accessibility<br>🌓 Dark/Light Theme (Ctrl+D) - Switch between themes<br>❓ Quick Guide - Access this help anytime',
                 position: 'bottom'
             },
             {
-                target: '#diffMode',
-                title: 'Diff Modes',
-                content: 'Choose how to compare texts:<br>• <strong>Line-by-line</strong>: Compare entire lines<br>• <strong>Word-by-word</strong>: Compare individual words<br>• <strong>Character-level</strong>: Compare every character',
+                target: '.settings-panel',
+                title: 'Comparison Settings',
+                content: '📊 Diff Mode - Line-by-line, word-by-word, or character-level<br>👁️ View Mode - Side-by-side or inline comparison<br>🎨 Language - Syntax highlighting for code<br>⚙️ Ignore Options - Skip case, whitespace, or punctuation',
                 position: 'bottom'
             },
             {
-                target: '#viewMode',
-                title: 'View Modes',
-                content: 'Select how to display results:<br>• <strong>Side-by-side</strong>: Show texts in parallel columns<br>• <strong>Inline</strong>: Show unified diff view',
-                position: 'bottom'
-            },
-            {
-                target: '#languageSelect',
-                title: 'Syntax Highlighting',
-                content: 'Choose your programming language for syntax highlighting support (JavaScript, Python, HTML, CSS, etc.)',
-                position: 'bottom'
-            },
-            {
-                target: '.ignore-options',
-                title: 'Ignore Options',
-                content: 'Fine-tune comparison by ignoring:<br>• Case differences<br>• Whitespace changes<br>• Punctuation variations',
-                position: 'bottom'
-            },
-            {
-                target: '#originalText',
-                title: 'Original Text Input',
-                content: 'Paste your original text here or drag & drop a file. Supports .txt, .md, .json, .html, .js, .py, .css files.',
+                target: '.input-section',
+                title: 'Text Input Areas',
+                content: '📝 Original Text (left) - Your base text for comparison<br>📝 Changed Text (right) - Modified version to compare<br>📁 Drag & Drop - Supports .txt, .md, .json, .html, .js, .py, .css files<br>💡 Tip: Files auto-detect programming language!',
                 position: 'top'
             },
             {
-                target: '#changedText',
-                title: 'Changed Text Input',
-                content: 'Paste your modified text here or drag & drop a file for comparison.',
-                position: 'top'
-            },
-            {
-                target: '.main-controls',
-                title: 'Main Controls',
-                content: '• <strong>Compare</strong>: Start the comparison<br>• <strong>Clear All</strong>: Reset both text areas<br>• <strong>Swap</strong>: Exchange original and changed texts',
+                target: '.controls',
+                title: 'Main Action Controls',
+                content: '🔍 Compare Texts (Ctrl+Enter) - Start the comparison<br>🗑️ Clear All (Ctrl+K) - Reset both text areas<br>🔄 Swap Texts (Ctrl+S) - Exchange left and right content<br>📁 Load Files - Upload files from your computer',
                 position: 'top'
             },
             {
                 target: '.export-controls',
-                title: 'Export Options',
-                content: 'Export your diff results in multiple formats:<br>📋 Copy to clipboard<br>📄 Plain text<br>🌐 HTML<br>📝 Markdown<br>📑 PDF',
+                title: 'Export Your Results',
+                content: '📋 Copy (Ctrl+C) - Copy results to clipboard<br>📄 Plain Text - Export as .txt file<br>🌐 HTML - Export with styling and colors<br>📝 Markdown - Export in markdown format<br>📑 PDF - Generate PDF document',
                 position: 'top'
             },
             {
-                target: '#aiControls',
+                target: '.ai-controls',
                 title: '🧠 AI-Powered Analysis Tools',
-                content: 'Unlock powerful AI features to enhance your text analysis:<br>• <strong>🧠 Explain</strong>: Get detailed analysis of changes<br>• <strong>✨ Rewrite</strong>: Receive improvement suggestions<br>• <strong>📝 Summary</strong>: Generate concise summaries<br>• <strong>🎭 Tone</strong>: Analyze writing style and sentiment<br>• <strong>🧹 Cleanup</strong>: Fix formatting and text issues',
-                position: 'top'
-            },
-            {
-                target: '#livePreview',
-                title: 'Live Preview',
-                content: 'Enable automatic comparison as you type (with smart debouncing to avoid performance issues).',
-                position: 'bottom'
-            },
-            {
-                target: '#aiResults',
-                title: '🎯 AI Analysis Results',
-                content: 'AI analysis results appear here as beautiful cards. You can:<br>• Run multiple AI analyses simultaneously<br>• View all results together in a grid layout<br>• Close individual cards or clear all results<br>• Each analysis provides detailed, actionable insights',
+                content: '🧠 AI Explain (Alt+1) - Detailed analysis of changes and statistics<br>✨ AI Rewrite (Alt+2) - Smart suggestions for improvement<br>📝 AI Summary (Alt+3) - Generate concise summaries<br>🎭 AI Tone (Alt+4) - Analyze writing style and sentiment<br>🧹 AI Cleanup (Alt+5) - Fix formatting and text issues',
                 position: 'top'
             }
         ];
-        
-        this.tooltips = {
-            '#contrastToggle': 'Increase contrast for better accessibility',
-            '#themeToggle': 'Switch between dark and light themes',
-            '#compareBtn': 'Start comparing the two texts',
-            '#clearBtn': 'Clear both text areas',
-            '#swapBtn': 'Swap the original and changed texts',
-            '#copyBtn': 'Copy the diff results to clipboard',
-            '#exportTxt': 'Export as plain text file',
-            '#exportHtml': 'Export as HTML file with styling',
-            '#exportMd': 'Export as Markdown file',
-            '#exportPdf': 'Export as PDF document',
-            '#aiExplainBtn': '🧠 AI Explain: Get detailed analysis of text changes, statistics, and recommendations',
-            '#aiRewriteBtn': '✨ AI Rewrite: Receive intelligent suggestions for improving style, clarity, and structure',
-            '#aiSummaryBtn': '📝 AI Summary: Generate concise summaries and extract key points from your text',
-            '#aiToneBtn': '🎭 AI Tone: Analyze writing style, sentiment, and formality levels',
-            '#aiCleanupBtn': '🧹 AI Cleanup: Detect and fix formatting issues, punctuation, and text problems',
-            '#minimapToggle': 'Show/hide overview map of changes',
-            '#prevChangeBtn': 'Navigate to previous change',
-            '#nextChangeBtn': 'Navigate to next change'
-        };
         
         this.init();
     }
     
     init() {
-        this.createGuideElements();
-        this.setupEventListeners();
-        this.setupTooltips();
+        // Wait for React components to render
+        this.waitForElements(() => {
+            this.createElements();
+            this.setupEventListeners();
+            
+            // Show tour on first visit
+            if (!localStorage.getItem('quickdiff-tour-shown')) {
+                setTimeout(() => this.startTour(), 1500);
+            }
+        });
+    }
+    
+    waitForElements(callback) {
+        const checkElements = () => {
+            const headerControls = document.querySelector('.header-controls');
+            if (headerControls) {
+                callback();
+            } else {
+                setTimeout(checkElements, 200);
+            }
+        };
+        checkElements();
+    }
+    
+    createElements() {
+        this.createTourOverlay();
+        this.createQuickGuideButton();
+        this.createQuickGuideModal();
+    }
+    
+    createTourOverlay() {
+        // Remove existing overlay
+        const existing = document.getElementById('tour-overlay');
+        if (existing) existing.remove();
         
-        // Show guide on first visit
-        if (!localStorage.getItem('quickdiff-guide-shown')) {
-            setTimeout(() => this.startGuide(), 1000);
+        const overlay = document.createElement('div');
+        overlay.id = 'tour-overlay';
+        overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10000;
+            pointer-events: none;
+            display: none;
+        `;
+        
+        overlay.innerHTML = `
+            <div id="tour-spotlight" style="
+                position: absolute;
+                background: transparent;
+                border-radius: 12px;
+                box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.8);
+                border: 2px solid #B6B09F;
+                pointer-events: none;
+                transition: all 0.4s ease;
+            "></div>
+            <div id="tour-tooltip" style="
+                position: absolute;
+                background: linear-gradient(135deg, #F2F2F2 0%, #EAE4D5 100%);
+                border-radius: 15px;
+                border: 1px solid #B6B09F;
+                box-shadow: 0 4px 20px rgba(182, 176, 159, 0.3);
+                max-width: 350px;
+                min-width: 280px;
+                pointer-events: auto;
+                z-index: 10001;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            ">
+                <div style="padding: 20px 24px 16px;">
+                    <h3 id="tour-title" style="
+                        margin: 0 0 12px 0;
+                        font-size: 18px;
+                        font-weight: 600;
+                        color: #000000;
+                    "></h3>
+                    <p id="tour-content" style="
+                        margin: 0;
+                        color: #000000;
+                        line-height: 1.5;
+                        font-size: 14px;
+                    "></p>
+                </div>
+                <div style="
+                    padding: 0 24px 20px;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                ">
+                    <span id="tour-progress" style="
+                        font-size: 12px;
+                        color: #B6B09F;
+                    "></span>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="tour-skip" style="
+                            padding: 8px 16px;
+                            border: 2px solid #B6B09F;
+                            background: #F2F2F2;
+                            color: #000000;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            transition: all 0.3s ease;
+                        ">Skip</button>
+                        <button id="tour-next" style="
+                            padding: 8px 16px;
+                            border: none;
+                            background: linear-gradient(135deg, #000000 0%, #B6B09F 100%);
+                            color: #F2F2F2;
+                            border-radius: 8px;
+                            cursor: pointer;
+                            font-size: 13px;
+                            transition: all 0.3s ease;
+                        ">Next</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(overlay);
+    }
+    
+    createQuickGuideButton() {
+        // Remove existing button
+        const existing = document.getElementById('quick-guide-btn');
+        if (existing) existing.remove();
+        
+        const button = document.createElement('button');
+        button.id = 'quick-guide-btn';
+        button.innerHTML = '❓';
+        button.title = 'Quick Guide';
+        button.className = 'btn btn-secondary btn-icon-only';
+        // Copy exact styles from contrast/theme buttons - no custom overrides
+        
+        
+        // Add to header controls
+        const headerControls = document.querySelector('.header-controls');
+        if (headerControls) {
+            headerControls.appendChild(button);
         }
     }
     
-    createGuideElements() {
-        // Create guide overlay
-        const overlay = document.createElement('div');
-        overlay.id = 'guide-overlay';
-        overlay.className = 'guide-overlay';
-        overlay.innerHTML = `
-            <div class="guide-spotlight"></div>
-            <div class="guide-tooltip">
-                <div class="guide-tooltip-header">
-                    <h3 class="guide-tooltip-title"></h3>
-                    <button class="guide-close-btn">&times;</button>
+    createQuickGuideModal() {
+        // Remove existing modal
+        const existing = document.getElementById('quick-guide-modal');
+        if (existing) existing.remove();
+        
+        const modal = document.createElement('div');
+        modal.id = 'quick-guide-modal';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        `;
+        
+        modal.innerHTML = `
+            <div style="
+                background: white;
+                border-radius: 16px;
+                max-width: 600px;
+                width: 90%;
+                max-height: 80vh;
+                overflow-y: auto;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+                font-family: system-ui, -apple-system, sans-serif;
+            ">
+                <div style="
+                    padding: 24px 32px 20px;
+                    border-bottom: 1px solid #e5e7eb;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                ">
+                    <h2 style="
+                        margin: 0;
+                        font-size: 24px;
+                        font-weight: 700;
+                        color: #1f2937;
+                    ">QuickDiff Guide</h2>
+                    <button id="close-guide-modal" style="
+                        background: none;
+                        border: none;
+                        font-size: 28px;
+                        cursor: pointer;
+                        color: #6b7280;
+                        padding: 0;
+                        width: 32px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 6px;
+                    ">&times;</button>
                 </div>
-                <div class="guide-tooltip-content"></div>
-                <div class="guide-tooltip-footer">
-                    <div class="guide-progress">
-                        <span class="guide-step-counter"></span>
-                        <div class="guide-progress-bar">
-                            <div class="guide-progress-fill"></div>
+                <div style="padding: 24px 32px;">
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="
+                            margin: 0 0 12px 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #1f2937;
+                        ">🚀 Getting Started</h3>
+                        <ul style="
+                            margin: 0;
+                            padding-left: 20px;
+                            color: #4b5563;
+                            line-height: 1.6;
+                        ">
+                            <li>Paste or type text in both areas</li>
+                            <li>Choose your diff mode and settings</li>
+                            <li>Click "Compare Texts" to see differences</li>
+                            <li>Export results in your preferred format</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="
+                            margin: 0 0 12px 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #1f2937;
+                        ">⚙️ Diff Modes</h3>
+                        <ul style="
+                            margin: 0;
+                            padding-left: 20px;
+                            color: #4b5563;
+                            line-height: 1.6;
+                        ">
+                            <li><strong>Line-by-line:</strong> Best for code and structured text</li>
+                            <li><strong>Word-by-word:</strong> Great for documents and prose</li>
+                            <li><strong>Character-level:</strong> Precise for small changes</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="
+                            margin: 0 0 12px 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #1f2937;
+                        ">🎨 Features</h3>
+                        <ul style="
+                            margin: 0;
+                            padding-left: 20px;
+                            color: #4b5563;
+                            line-height: 1.6;
+                        ">
+                            <li>Drag & drop files for easy loading</li>
+                            <li>Live preview for real-time comparison</li>
+                            <li>Syntax highlighting for code</li>
+                            <li>Multiple export formats</li>
+                            <li>Dark/light theme with high contrast mode</li>
+                        </ul>
+                    </div>
+                    
+                    <div style="margin-bottom: 24px;">
+                        <h3 style="
+                            margin: 0 0 12px 0;
+                            font-size: 18px;
+                            font-weight: 600;
+                            color: #1f2937;
+                        ">⌨️ Keyboard Shortcuts</h3>
+                        <div style="
+                            display: grid;
+                            grid-template-columns: 1fr 1fr;
+                            gap: 16px;
+                            color: #4b5563;
+                            line-height: 1.6;
+                            font-size: 14px;
+                        ">
+                            <div>
+                                <h4 style="
+                                    margin: 0 0 8px 0;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    color: #374151;
+                                ">🔧 Main Actions</h4>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+Enter</kbd> Compare</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+K</kbd> Clear All</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+S</kbd> Swap Texts</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+C</kbd> Copy Results</div>
+                            </div>
+                            <div>
+                                <h4 style="
+                                    margin: 0 0 8px 0;
+                                    font-size: 14px;
+                                    font-weight: 600;
+                                    color: #374151;
+                                ">🎨 Interface</h4>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+D</kbd> Toggle Theme</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+H</kbd> High Contrast</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">F1</kbd> Show Guide</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Escape</kbd> Close Overlays</div>
+                            </div>
+                        </div>
+                        <div style="
+                            margin-top: 12px;
+                            padding-top: 12px;
+                            border-top: 1px solid #e5e7eb;
+                        ">
+                            <h4 style="
+                                margin: 0 0 8px 0;
+                                font-size: 14px;
+                                font-weight: 600;
+                                color: #374151;
+                            ">🧠 AI Features</h4>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+1</kbd> AI Explain</div>
+                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+2</kbd> AI Rewrite</div>
+                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+3</kbd> AI Summary</div>
+                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+4</kbd> AI Tone</div>
+                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+5</kbd> AI Cleanup</div>
+                            </div>
                         </div>
                     </div>
-                    <div class="guide-buttons">
-                        <button class="guide-btn guide-btn-secondary" id="guide-skip">Skip Tour</button>
-                        <button class="guide-btn guide-btn-secondary" id="guide-prev">Previous</button>
-                        <button class="guide-btn guide-btn-primary" id="guide-next">Next</button>
+                    
+                    <div style="
+                        background: #f3f4f6;
+                        padding: 16px;
+                        border-radius: 8px;
+                        text-align: center;
+                    ">
+                        <button id="restart-tour" style="
+                            background: #3b82f6;
+                            color: white;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 6px;
+                            cursor: pointer;
+                            font-size: 14px;
+                            font-weight: 500;
+                        ">🎯 Restart Tour</button>
                     </div>
                 </div>
             </div>
         `;
-        document.body.appendChild(overlay);
         
-        // Create help button
-        const helpButton = document.createElement('button');
-        helpButton.id = 'help-button';
-        helpButton.className = 'help-button';
-        helpButton.innerHTML = '❓';
-        helpButton.title = 'Show User Guide';
-        document.querySelector('.header-controls').appendChild(helpButton);
-        
-        // Create quick help panel
-        const quickHelp = document.createElement('div');
-        quickHelp.id = 'quick-help';
-        quickHelp.className = 'quick-help-panel';
-        quickHelp.innerHTML = `
-            <div class="quick-help-header">
-                <h3>Quick Help</h3>
-                <button class="quick-help-close">&times;</button>
-            </div>
-            <div class="quick-help-content">
-                <div class="help-section">
-                    <h4>🚀 Getting Started</h4>
-                    <ul>
-                        <li>Paste or type text in both areas</li>
-                        <li>Choose your diff mode and settings</li>
-                        <li>Click "Compare Texts" to see differences</li>
-                        <li>Export results in your preferred format</li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>⚙️ Diff Modes</h4>
-                    <ul>
-                        <li><strong>Line-by-line:</strong> Best for code and structured text</li>
-                        <li><strong>Word-by-word:</strong> Great for documents and prose</li>
-                        <li><strong>Character-level:</strong> Precise for small changes</li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>🎨 Features</h4>
-                    <ul>
-                        <li>Drag & drop files for easy loading</li>
-                        <li>Live preview for real-time comparison</li>
-                        <li>Syntax highlighting for code</li>
-                        <li>Multiple export formats</li>
-                        <li>Dark/light theme with high contrast mode</li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>🧠 AI-Powered Tools</h4>
-                    <ul>
-                        <li><strong>🧠 Explain:</strong> Detailed analysis of changes and statistics</li>
-                        <li><strong>✨ Rewrite:</strong> Smart suggestions for style and clarity</li>
-                        <li><strong>📝 Summary:</strong> Extract key points and generate summaries</li>
-                        <li><strong>🎭 Tone:</strong> Analyze sentiment, formality, and writing style</li>
-                        <li><strong>🧹 Cleanup:</strong> Fix formatting, punctuation, and text issues</li>
-                        <li><em>💡 Tip: Run multiple AI analyses to get comprehensive insights!</em></li>
-                    </ul>
-                </div>
-                <div class="help-section">
-                    <h4>⌨️ Keyboard Shortcuts</h4>
-                    <div class="shortcuts-grid">
-                        <div class="shortcuts-column">
-                            <h5>🔧 Main Actions</h5>
-                            <ul>
-                                <li><kbd>Ctrl+Enter</kbd> - Compare texts</li>
-                                <li><kbd>Ctrl+K</kbd> - Clear all</li>
-                                <li><kbd>Ctrl+S</kbd> - Swap texts</li>
-                                <li><kbd>Ctrl+C</kbd> - Copy results</li>
-                            </ul>
-                        </div>
-                        <div class="shortcuts-column">
-                            <h5>🎨 Interface</h5>
-                            <ul>
-                                <li><kbd>Ctrl+D</kbd> - Toggle dark mode</li>
-                                <li><kbd>Ctrl+H</kbd> - Toggle contrast</li>
-                                <li><kbd>Ctrl+M</kbd> - Toggle minimap</li>
-                                <li><kbd>F1</kbd> - Show help</li>
-                                <li><kbd>Escape</kbd> - Close overlays</li>
-                            </ul>
-                        </div>
-                        <div class="shortcuts-column">
-                            <h5>🧭 Navigation</h5>
-                            <ul>
-                                <li><kbd>Ctrl+↑</kbd> - Previous change</li>
-                                <li><kbd>Ctrl+↓</kbd> - Next change</li>
-                            </ul>
-                        </div>
-                        <div class="shortcuts-column">
-                            <h5>🧠 AI Features</h5>
-                            <ul>
-                                <li><kbd>Alt+1</kbd> - AI Explain</li>
-                                <li><kbd>Alt+2</kbd> - AI Rewrite</li>
-                                <li><kbd>Alt+3</kbd> - AI Summary</li>
-                                <li><kbd>Alt+4</kbd> - AI Tone</li>
-                                <li><kbd>Alt+5</kbd> - AI Cleanup</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(quickHelp);
+        document.body.appendChild(modal);
     }
     
     setupEventListeners() {
-        // Help button
-        document.getElementById('help-button').addEventListener('click', () => {
-            this.toggleQuickHelp();
-        });
+        // Quick Guide button
+        const guideBtn = document.getElementById('quick-guide-btn');
+        if (guideBtn) {
+            guideBtn.addEventListener('click', () => this.showQuickGuide());
+        }
         
-        // Guide controls
-        document.getElementById('guide-next').addEventListener('click', () => this.nextStep());
-        document.getElementById('guide-prev').addEventListener('click', () => this.prevStep());
-        document.getElementById('guide-skip').addEventListener('click', () => this.endGuide());
-        document.querySelector('.guide-close-btn').addEventListener('click', () => this.endGuide());
+        // Close modal
+        const closeBtn = document.getElementById('close-guide-modal');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => this.hideQuickGuide());
+        }
         
-        // Quick help controls
-        document.querySelector('.quick-help-close').addEventListener('click', () => {
-            this.hideQuickHelp();
-        });
+        // Restart tour
+        const restartBtn = document.getElementById('restart-tour');
+        if (restartBtn) {
+            restartBtn.addEventListener('click', () => {
+                this.hideQuickGuide();
+                this.startTour();
+            });
+        }
         
-        // Keyboard shortcuts
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'F1') {
-                e.preventDefault();
-                this.toggleQuickHelp();
-            }
-            if (e.key === 'Escape') {
-                if (this.isGuideActive) this.endGuide();
-                this.hideQuickHelp();
-            }
-        });
+        // Tour controls
+        const skipBtn = document.getElementById('tour-skip');
+        const nextBtn = document.getElementById('tour-next');
         
-        // Close guide when clicking outside
-        document.getElementById('guide-overlay').addEventListener('click', (e) => {
-            if (e.target.id === 'guide-overlay') {
-                this.endGuide();
-            }
-        });
+        if (skipBtn) {
+            skipBtn.addEventListener('click', () => this.endTour());
+        }
         
-        // Reposition guide elements on window resize
-        window.addEventListener('resize', () => {
-            if (this.isGuideActive) {
-                setTimeout(() => {
-                    const step = this.guideSteps[this.currentStep];
-                    const target = document.querySelector(step.target);
-                    if (target) {
-                        this.positionGuideElements(target, step.position);
-                    }
-                }, 100);
-            }
-        });
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => this.nextStep());
+        }
         
-        // Reposition guide elements on scroll
-        window.addEventListener('scroll', () => {
-            if (this.isGuideActive) {
-                const step = this.guideSteps[this.currentStep];
-                const target = document.querySelector(step.target);
-                if (target) {
-                    this.positionGuideElements(target, step.position);
+        // Close modal when clicking outside
+        const modal = document.getElementById('quick-guide-modal');
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    this.hideQuickGuide();
                 }
-            }
-        });
-    }
-    
-    setupTooltips() {
-        Object.entries(this.tooltips).forEach(([selector, text]) => {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.setAttribute('data-tooltip', text);
-                element.addEventListener('mouseenter', this.showTooltip.bind(this));
-                element.addEventListener('mouseleave', this.hideTooltip.bind(this));
-            }
-        });
-    }
-    
-    showTooltip(e) {
-        if (this.isGuideActive) return;
-        
-        const tooltip = document.createElement('div');
-        tooltip.className = 'custom-tooltip';
-        tooltip.textContent = e.target.getAttribute('data-tooltip');
-        document.body.appendChild(tooltip);
-        
-        const rect = e.target.getBoundingClientRect();
-        const tooltipRect = tooltip.getBoundingClientRect();
-        
-        let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-        let top = rect.top - tooltipRect.height - 10;
-        
-        // Adjust if tooltip goes off screen
-        if (left < 10) left = 10;
-        if (left + tooltipRect.width > window.innerWidth - 10) {
-            left = window.innerWidth - tooltipRect.width - 10;
-        }
-        if (top < 10) {
-            top = rect.bottom + 10;
-            tooltip.classList.add('tooltip-below');
+            });
         }
         
-        tooltip.style.left = left + 'px';
-        tooltip.style.top = top + 'px';
-        
-        e.target._tooltip = tooltip;
-    }
-    
-    hideTooltip(e) {
-        if (e.target._tooltip) {
-            e.target._tooltip.remove();
-            e.target._tooltip = null;
+        // Close tour when clicking outside
+        const overlay = document.getElementById('tour-overlay');
+        if (overlay) {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) {
+                    this.endTour();
+                }
+            });
         }
     }
     
-    startGuide() {
+    startTour() {
         this.isGuideActive = true;
         this.currentStep = 0;
-        document.getElementById('guide-overlay').style.display = 'block';
-        document.body.classList.add('guide-active');
-        this.showStep();
+        
+        const overlay = document.getElementById('tour-overlay');
+        if (overlay) {
+            overlay.style.display = 'block';
+            this.showStep();
+        }
     }
     
     showStep() {
-        const step = this.guideSteps[this.currentStep];
+        const step = this.tourSteps[this.currentStep];
         const target = document.querySelector(step.target);
         
         if (!target) {
-            console.warn(`Guide target not found: ${step.target}`);
+            // Try next step if target not found
             this.nextStep();
             return;
         }
         
         // Update tooltip content
-        document.querySelector('.guide-tooltip-title').textContent = step.title;
-        document.querySelector('.guide-tooltip-content').innerHTML = step.content;
-        document.querySelector('.guide-step-counter').textContent = 
-            `Step ${this.currentStep + 1} of ${this.guideSteps.length}`;
+        document.getElementById('tour-title').textContent = step.title;
+        document.getElementById('tour-content').innerHTML = step.content;
+        document.getElementById('tour-progress').textContent = 
+            `${this.currentStep + 1} of ${this.tourSteps.length}`;
         
-        // Update progress bar
-        const progress = ((this.currentStep + 1) / this.guideSteps.length) * 100;
-        document.querySelector('.guide-progress-fill').style.width = progress + '%';
-        
-        // Update button states
-        document.getElementById('guide-prev').disabled = this.currentStep === 0;
-        const nextBtn = document.getElementById('guide-next');
-        if (this.currentStep === this.guideSteps.length - 1) {
+        // Update next button
+        const nextBtn = document.getElementById('tour-next');
+        if (this.currentStep === this.tourSteps.length - 1) {
             nextBtn.textContent = 'Finish';
         } else {
             nextBtn.textContent = 'Next';
         }
         
-        // Scroll target into view first
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Position spotlight and tooltip after a short delay to ensure scroll is complete
+        // Position spotlight and tooltip
         setTimeout(() => {
-            this.positionGuideElements(target, step.position);
-            
-            // Make sure spotlight is visible
-            const spotlight = document.querySelector('.guide-spotlight');
-            spotlight.style.display = 'block';
-            spotlight.style.zIndex = '10000';
-        }, 300);
+            this.positionSpotlight(target, step.position);
+        }, 100);
     }
     
-    positionGuideElements(target, position) {
-        const rect = target.getBoundingClientRect();
-        const spotlight = document.querySelector('.guide-spotlight');
-        const tooltip = document.querySelector('.guide-tooltip');
+    positionSpotlight(target, position) {
+        const spotlight = document.getElementById('tour-spotlight');
+        const tooltip = document.getElementById('tour-tooltip');
         
-        // Add scroll offset to position calculations
+        if (!spotlight || !tooltip || !target) return;
+        
+        const rect = target.getBoundingClientRect();
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
         
-        // Calculate spotlight dimensions
+        let padding = 12;
         let spotlightRect = {
             left: rect.left,
             top: rect.top,
             width: rect.width,
             height: rect.height
         };
-        let padding = 10;
         
-        // For main controls and AI controls, fit tighter around the buttons
-        if (target.classList.contains('main-controls') || target.id === 'aiControls') {
-            const buttons = target.querySelectorAll('button');
+        // Special handling for control groups
+        if (target.classList.contains('header-controls') || 
+            target.classList.contains('controls') || 
+            target.classList.contains('export-controls') ||
+            target.classList.contains('ai-controls')) {
+            
+            const buttons = target.querySelectorAll('button:not([style*="display: none"])');
             if (buttons.length > 0) {
-                // Calculate the bounding box of all buttons
+                // Calculate bounding box of all visible buttons
                 let minLeft = Infinity, minTop = Infinity, maxRight = -Infinity, maxBottom = -Infinity;
                 
                 buttons.forEach(button => {
                     const buttonRect = button.getBoundingClientRect();
-                    minLeft = Math.min(minLeft, buttonRect.left);
-                    minTop = Math.min(minTop, buttonRect.top);
-                    maxRight = Math.max(maxRight, buttonRect.right);
-                    maxBottom = Math.max(maxBottom, buttonRect.bottom);
+                    if (buttonRect.width > 0 && buttonRect.height > 0) {
+                        minLeft = Math.min(minLeft, buttonRect.left);
+                        minTop = Math.min(minTop, buttonRect.top);
+                        maxRight = Math.max(maxRight, buttonRect.right);
+                        maxBottom = Math.max(maxBottom, buttonRect.bottom);
+                    }
                 });
                 
-                // Use the tighter bounding box for spotlight
-                spotlightRect = {
-                    left: minLeft,
-                    top: minTop,
-                    width: maxRight - minLeft,
-                    height: maxBottom - minTop
-                };
-                padding = 8; // Smaller padding for button groups
+                if (minLeft !== Infinity) {
+                    spotlightRect = {
+                        left: minLeft,
+                        top: minTop,
+                        width: maxRight - minLeft,
+                        height: maxBottom - minTop
+                    };
+                    padding = 8;
+                }
             }
         }
         
         // Position spotlight with scroll offset
         spotlight.style.left = (spotlightRect.left + scrollLeft - padding) + 'px';
         spotlight.style.top = (spotlightRect.top + scrollTop - padding) + 'px';
-        spotlight.style.width = (spotlightRect.width + (padding * 2)) + 'px';
-        spotlight.style.height = (spotlightRect.height + (padding * 2)) + 'px';
+        spotlight.style.width = (spotlightRect.width + padding * 2) + 'px';
+        spotlight.style.height = (spotlightRect.height + padding * 2) + 'px';
         
-        // Position tooltip using original rect (for consistent positioning)
-        const tooltipRect = tooltip.getBoundingClientRect();
+        // Position tooltip
         let left, top;
         
         switch (position) {
             case 'top':
-                left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
-                top = rect.top - tooltipRect.height - 20;
+                left = rect.left + rect.width / 2 - 175;
+                top = rect.top - 20;
+                tooltip.style.transform = 'translateY(-100%)';
                 break;
             case 'bottom':
-                left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                left = rect.left + rect.width / 2 - 175;
                 top = rect.bottom + 20;
-                break;
-            case 'left':
-                left = rect.left - tooltipRect.width - 20;
-                top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
-                break;
-            case 'right':
-                left = rect.right + 20;
-                top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
+                tooltip.style.transform = 'translateY(0)';
                 break;
             default:
-                left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                left = rect.left + rect.width / 2 - 175;
                 top = rect.bottom + 20;
-                break;
+                tooltip.style.transform = 'translateY(0)';
         }
         
-        // Add scroll offset to tooltip position
+        // Add scroll offset to tooltip
         left += scrollLeft;
         top += scrollTop;
         
-        // Adjust if tooltip goes off screen (considering scroll)
-        if (left < scrollLeft + 20) left = scrollLeft + 20;
-        if (left + tooltipRect.width > scrollLeft + window.innerWidth - 20) {
-            left = scrollLeft + window.innerWidth - tooltipRect.width - 20;
-        }
-        if (top < scrollTop + 20) top = scrollTop + 20;
-        if (top + tooltipRect.height > scrollTop + window.innerHeight - 20) {
-            top = scrollTop + window.innerHeight - tooltipRect.height - 20;
-        }
+        // Keep tooltip on screen
+        left = Math.max(scrollLeft + 20, Math.min(left, scrollLeft + window.innerWidth - 370));
+        top = Math.max(scrollTop + 20, Math.min(top, scrollTop + window.innerHeight - 200));
         
         tooltip.style.left = left + 'px';
         tooltip.style.top = top + 'px';
     }
     
     nextStep() {
-        if (this.currentStep < this.guideSteps.length - 1) {
+        if (this.currentStep < this.tourSteps.length - 1) {
             this.currentStep++;
             this.showStep();
         } else {
-            this.endGuide();
+            this.endTour();
         }
     }
     
-    prevStep() {
-        if (this.currentStep > 0) {
-            this.currentStep--;
-            this.showStep();
-        }
-    }
-    
-    endGuide() {
+    endTour() {
         this.isGuideActive = false;
-        document.getElementById('guide-overlay').style.display = 'none';
-        document.body.classList.remove('guide-active');
-        localStorage.setItem('quickdiff-guide-shown', 'true');
+        const overlay = document.getElementById('tour-overlay');
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        localStorage.setItem('quickdiff-tour-shown', 'true');
     }
     
-    toggleQuickHelp() {
-        const quickHelp = document.getElementById('quick-help');
-        if (quickHelp.style.display === 'block') {
-            this.hideQuickHelp();
-        } else {
-            this.showQuickHelp();
+    showQuickGuide() {
+        const modal = document.getElementById('quick-guide-modal');
+        if (modal) {
+            modal.style.display = 'flex';
         }
     }
     
-    showQuickHelp() {
-        document.getElementById('quick-help').style.display = 'block';
-    }
-    
-    hideQuickHelp() {
-        document.getElementById('quick-help').style.display = 'none';
+    hideQuickGuide() {
+        const modal = document.getElementById('quick-guide-modal');
+        if (modal) {
+            modal.style.display = 'none';
+        }
     }
 }
 
-// Make the class available globally for React integration
-window.QuickDiffUserGuide = QuickDiffUserGuide;
+// Export for React usage
+export default ReactUserGuide;
 
-// Initialize the user guide when DOM is loaded (fallback for non-React usage)
-if (document.readyState === 'loading') {
+// Make available globally
+if (typeof window !== 'undefined') {
+    window.ReactUserGuide = ReactUserGuide;
+}
+
+// Auto-initialize for React
+if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
         if (!window.userGuideInitialized) {
-            new QuickDiffUserGuide();
+            new ReactUserGuide();
             window.userGuideInitialized = true;
         }
     });
-} else {
-    // DOM is already loaded
-    if (!window.userGuideInitialized) {
-        setTimeout(() => {
-            new QuickDiffUserGuide();
-            window.userGuideInitialized = true;
-        }, 100);
-    }
 }

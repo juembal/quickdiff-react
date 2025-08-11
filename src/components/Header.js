@@ -22,7 +22,6 @@ const Header = ({ onThemeToggle, onContrastToggle }) => {
         >
           🌓
         </button>
-        {/* User guide help button (❓) will be automatically added here by user-guide.js */}
       </div>
     </header>
   );

@@ -7,6 +7,7 @@ import InputSection from './components/InputSection';
 import Controls from './components/Controls';
 import Legend from './components/Legend';
 import Results from './components/Results';
+import ReactUserGuide from './user-guide.js';
 import { DiffEngine } from './utils/DiffEngine';
 import { ExportUtils } from './utils/ExportUtils';
 import { AIEngine } from './utils/AIEngine';
@@ -49,6 +50,11 @@ function QuickDiffApp() {
   const [changes, setChanges] = useState([]);
   const [currentChangeIndex, setCurrentChangeIndex] = useState(-1);
   const [minimapVisible, setMinimapVisible] = useState(false);
+  
+  // Initialize user guide
+  useEffect(() => {
+    new ReactUserGuide();
+  }, []);
 
   // Refs
   const debounceTimer = useRef(null);
@@ -59,73 +65,7 @@ function QuickDiffApp() {
   
   const { showNotification } = useNotification();
 
-  // Load settings and theme on mount
-  useEffect(() => {
-    loadSettings();
-    loadTheme();
-  }, []);
-
-  // Initialize user guide
-  useEffect(() => {
-    const initUserGuide = () => {
-      if (window.QuickDiffUserGuide) {
-        if (!window.userGuideInitialized) {
-          new window.QuickDiffUserGuide();
-          window.userGuideInitialized = true;
-        }
-      } else {
-        // If the class isn't available yet, try again after a short delay
-        setTimeout(initUserGuide, 100);
-      }
-    };
-    
-    // Small delay to ensure DOM is ready
-    setTimeout(initUserGuide, 200);
-  }, []);
-
-  // Auto-save settings when they change
-  useEffect(() => {
-    saveSettings();
-  }, [settings, saveSettings]);
-
-  // Auto-detect language when text changes
-  useEffect(() => {
-    if (settings.autoDetectLanguage && (originalText.trim() || changedText.trim())) {
-      const combinedText = originalText + '\n' + changedText;
-      const detection = languageDetector.current.autoDetect(combinedText);
-      
-      setDetectedLanguage(detection);
-      
-      // Auto-update language setting for any detection that's not plaintext
-      if (detection.language !== 'plaintext' && detection.language !== settings.language) {
-        setSettings(prev => ({
-          ...prev,
-          language: detection.language
-        }));
-      }
-    } else if (!settings.autoDetectLanguage) {
-      // Reset to default when auto-detect is disabled
-      setDetectedLanguage({
-        language: 'plaintext',
-        confidence: 'low',
-        method: 'default'
-      });
-    }
-  }, [originalText, changedText, settings.autoDetectLanguage, settings.language]);
-
-  // Live preview with debouncing
-  useEffect(() => {
-    if (settings.livePreview && (originalText.trim() || changedText.trim())) {
-      clearTimeout(debounceTimer.current);
-      debounceTimer.current = setTimeout(() => {
-        performComparison();
-      }, 500);
-    }
-    
-    return () => clearTimeout(debounceTimer.current);
-  }, [originalText, changedText, settings.livePreview, settings.diffMode, settings.ignoreCase, settings.ignoreWhitespace, settings.ignorePunctuation, performComparison]);
-
-  // Settings management
+  // Settings management functions (defined early to avoid hoisting issues)
   const loadSettings = () => {
     try {
       const savedSettings = localStorage.getItem('quickdiff_react_settings');
@@ -137,13 +77,13 @@ function QuickDiffApp() {
     }
   };
 
-  const saveSettings = () => {
+  const saveSettings = useCallback(() => {
     try {
       localStorage.setItem('quickdiff_react_settings', JSON.stringify(settings));
     } catch (error) {
       console.error('Error saving settings:', error);
     }
-  };
+  }, [settings]);
 
   const loadTheme = () => {
     const savedTheme = localStorage.getItem('quickdiff_theme') || 'light';
@@ -154,61 +94,22 @@ function QuickDiffApp() {
     document.documentElement.setAttribute('data-contrast', savedContrast);
   };
 
-  // Theme management
-  const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
-    localStorage.setItem('quickdiff_theme', newTheme);
-    document.documentElement.setAttribute('data-theme', newTheme);
-    showNotification(`Switched to ${newTheme} theme`);
-  };
+  // Load settings and theme on mount
+  useEffect(() => {
+    loadSettings();
+    loadTheme();
+  }, []);
 
-  const toggleContrast = () => {
-    const newContrast = contrast === 'normal' ? 'high' : 'normal';
-    setContrast(newContrast);
-    localStorage.setItem('quickdiff_contrast', newContrast);
-    document.documentElement.setAttribute('data-contrast', newContrast);
-    showNotification(`${newContrast === 'high' ? 'Enabled' : 'Disabled'} high contrast mode`);
-  };
 
-  // Main comparison function
-  const performComparison = useCallback(() => {
-    if (!originalText.trim() && !changedText.trim()) {
-      showNotification('Please enter some text to compare');
-      return;
-    }
+  // Auto-save settings when they change
+  useEffect(() => {
+    saveSettings();
+  }, [settings, saveSettings]);
 
-    try {
-      const result = diffEngine.current.performComparison(
-        originalText,
-        changedText,
-        settings
-      );
 
-      console.log('Diff Result:', result); // Debug log
-      setDiffResult(result);
-      setShowResults(true);
-      collectChanges(result);
-      
-      // Auto-scroll to results only if live preview is disabled
-      if (!settings.livePreview) {
-        setTimeout(() => {
-          const resultsElement = document.getElementById('results-section');
-          if (resultsElement) {
-            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 100);
-      }
 
-      showNotification('Comparison completed');
-    } catch (error) {
-      console.error('Comparison error:', error);
-      showNotification('Error performing comparison');
-    }
-  }, [originalText, changedText, settings, showNotification, collectChanges]);
-
-  // Collect changes for navigation
-  const collectChanges = (result) => {
+  // Collect changes for navigation (defined early to avoid hoisting issues)
+  const collectChanges = useCallback((result) => {
     if (!result) return;
     
     const newChanges = [];
@@ -261,6 +162,59 @@ function QuickDiffApp() {
     } else {
       showNotification('No changes detected');
     }
+  }, [showNotification]);
+
+  // Main comparison function (defined early to avoid hoisting issues)
+  const performComparison = useCallback(() => {
+    if (!originalText.trim() && !changedText.trim()) {
+      showNotification('Please enter some text to compare');
+      return;
+    }
+
+    try {
+      const result = diffEngine.current.performComparison(
+        originalText,
+        changedText,
+        settings
+      );
+
+      console.log('Diff Result:', result); // Debug log
+      setDiffResult(result);
+      setShowResults(true);
+      collectChanges(result);
+      
+      // Auto-scroll to results only if live preview is disabled
+      if (!settings.livePreview) {
+        setTimeout(() => {
+          const resultsElement = document.getElementById('results-section');
+          if (resultsElement) {
+            resultsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+      }
+
+      showNotification('Comparison completed');
+    } catch (error) {
+      console.error('Comparison error:', error);
+      showNotification('Error performing comparison');
+    }
+  }, [originalText, changedText, settings, showNotification, collectChanges]);
+
+  // Theme management
+  const toggleTheme = () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    localStorage.setItem('quickdiff_theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+    showNotification(`Switched to ${newTheme} theme`);
+  };
+
+  const toggleContrast = () => {
+    const newContrast = contrast === 'normal' ? 'high' : 'normal';
+    setContrast(newContrast);
+    localStorage.setItem('quickdiff_contrast', newContrast);
+    document.documentElement.setAttribute('data-contrast', newContrast);
+    showNotification(`${newContrast === 'high' ? 'Enabled' : 'Disabled'} high contrast mode`);
   };
 
   // Text manipulation functions
@@ -440,6 +394,43 @@ function QuickDiffApp() {
     showNotification(minimapVisible ? 'Minimap hidden' : 'Minimap shown');
   };
 
+  // Auto-detect language when text changes
+  useEffect(() => {
+    if (settings.autoDetectLanguage && (originalText.trim() || changedText.trim())) {
+      const combinedText = originalText + '\n' + changedText;
+      const detection = languageDetector.current.autoDetect(combinedText);
+      
+      setDetectedLanguage(detection);
+      
+      // Auto-update language setting for any detection that's not plaintext
+      if (detection.language !== 'plaintext' && detection.language !== settings.language) {
+        setSettings(prev => ({
+          ...prev,
+          language: detection.language
+        }));
+      }
+    } else if (!settings.autoDetectLanguage) {
+      // Reset to default when auto-detect is disabled
+      setDetectedLanguage({
+        language: 'plaintext',
+        confidence: 'low',
+        method: 'default'
+      });
+    }
+  }, [originalText, changedText, settings.autoDetectLanguage, settings.language]);
+
+  // Live preview with debouncing
+  useEffect(() => {
+    if (settings.livePreview && (originalText.trim() || changedText.trim())) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = setTimeout(() => {
+        performComparison();
+      }, 500);
+    }
+    
+    return () => clearTimeout(debounceTimer.current);
+  }, [originalText, changedText, settings.livePreview, settings.diffMode, settings.ignoreCase, settings.ignoreWhitespace, settings.ignorePunctuation, performComparison]);
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -578,6 +569,7 @@ function QuickDiffApp() {
             onRemoveAICard={removeAICard}
           />
         )}
+        
       </div>
     </div>
   );
@@ -591,4 +583,4 @@ function App() {
   );
 }
 
-export default QuickDiffApp;
+export default App;
