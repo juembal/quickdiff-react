@@ -486,6 +486,10 @@ class QuickDiffUserGuide {
                 left = rect.right + 20;
                 top = rect.top + (rect.height / 2) - (tooltipRect.height / 2);
                 break;
+            default:
+                left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                top = rect.bottom + 20;
+                break;
         }
         
         // Add scroll offset to tooltip position

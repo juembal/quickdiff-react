@@ -87,7 +87,7 @@ function QuickDiffApp() {
   // Auto-save settings when they change
   useEffect(() => {
     saveSettings();
-  }, [settings]);
+  }, [settings, saveSettings]);
 
   // Auto-detect language when text changes
   useEffect(() => {
@@ -112,7 +112,7 @@ function QuickDiffApp() {
         method: 'default'
       });
     }
-  }, [originalText, changedText, settings.autoDetectLanguage]);
+  }, [originalText, changedText, settings.autoDetectLanguage, settings.language]);
 
   // Live preview with debouncing
   useEffect(() => {
@@ -124,7 +124,7 @@ function QuickDiffApp() {
     }
     
     return () => clearTimeout(debounceTimer.current);
-  }, [originalText, changedText, settings.livePreview, settings.diffMode, settings.ignoreCase, settings.ignoreWhitespace, settings.ignorePunctuation]);
+  }, [originalText, changedText, settings.livePreview, settings.diffMode, settings.ignoreCase, settings.ignoreWhitespace, settings.ignorePunctuation, performComparison]);
 
   // Settings management
   const loadSettings = () => {
@@ -206,7 +206,7 @@ function QuickDiffApp() {
       console.error('Comparison error:', error);
       showNotification('Error performing comparison');
     }
-  }, [originalText, changedText, settings, showNotification]);
+  }, [originalText, changedText, settings, showNotification, collectChanges]);
 
   // Collect changes for navigation
   const collectChanges = (result) => {
@@ -520,7 +520,7 @@ function QuickDiffApp() {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showResults, showAiResults, performComparison, clearAll, swapTexts, copyResults, toggleTheme, toggleContrast, toggleMinimap, clearAIResults, navigateToPreviousChange, navigateToNextChange]);
+  }, [showResults, showAiResults, performComparison, clearAll, swapTexts, copyResults, toggleTheme, toggleContrast, toggleMinimap, clearAIResults, navigateToPreviousChange, navigateToNextChange, showNotification]);
 
   return (
     <div className="quickdiff-app">

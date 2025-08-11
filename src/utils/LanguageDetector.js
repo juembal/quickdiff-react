@@ -51,9 +51,9 @@ export class LanguageDetector {
         /\b(px|em|rem|vh|vw|%)\b/
       ],
       json: [
-        /^\s*[\{\[]/,
+        /^\s*[{[]/,
         /\.(json)$/i,
-        /"[^"]*"\s*:\s*("[^"]*"|\d+|true|false|null|\{|\[)/,
+        /"[^"]*"\s*:\s*("[^"]*"|\d+|true|false|null|{|[)/,
         /^\s*\{[\s\S]*\}\s*$/,
         /^\s*\[[\s\S]*\]\s*$/
       ],
@@ -255,7 +255,7 @@ export class LanguageDetector {
       java: [/\b(public\s+class|public\s+static\s+void\s+main)\b/, /\b(System\.out\.println)\b/],
       html: [/<!DOCTYPE\s+html>/i, /<html\b/i],
       css: [/@(media|import|keyframes)/, /\{[^}]*\}/],
-      json: [/^\s*[\{\[]/, /"[^"]*"\s*:\s*/],
+      json: [/^\s*[{[]/, /"[^"]*"\s*:\s*/],
       xml: [/<\?xml\s+version/i],
       markdown: [/^#{1,6}\s+/m, /```[\s\S]*?```/],
       sql: [/\b(SELECT|FROM|WHERE)\b/i],
