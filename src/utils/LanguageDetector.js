@@ -517,59 +517,69 @@ export class LanguageDetector {
   isPlainText(content) {
     const lines = content.split('\n');
     const totalLines = lines.length;
+    const trimmedContent = content.trim();
     
-    // Very short content is likely plain text
-    if (content.length < 50 && totalLines <= 3) {
-      // Unless it has clear code indicators
-      const codeIndicators = [
+    // Empty or very minimal content
+    if (trimmedContent.length === 0) {
+      return true;
+    }
+    
+    // Very short content is likely plain text unless it has clear code indicators
+    if (content.length < 100 && totalLines <= 5) {
+      const strongCodeIndicators = [
         /^#!/, // shebang
-        /<[a-z]/i, // HTML tags
-        /^\s*\{/, // JSON/CSS
+        /<[a-z][^>]*>/i, // HTML tags
+        /^\s*[\{\[]/, // JSON/CSS/array start
         /^\s*<\?/, // XML/PHP
         /\bfunction\s*\(/, // function definitions
-        /\bclass\s+\w+/, // class definitions
-        /\bdef\s+\w+/, // Python functions
-        /\bpublic\s+/, // Java/C# modifiers
-        /^FROM\s+/i, // Dockerfile
-        /^\w+\s*:\s*\w+/, // YAML-like
-        /;\s*$/, // statements ending with semicolon
-        /\{[\s\S]*\}/, // code blocks
-        /\/\/|\/\*|\#/, // comments (but not standalone # lines)
+        /\bclass\s+\w+\s*[\{\(]/, // class definitions
+        /\bdef\s+\w+\s*\(/, // Python functions
+        /\b(public|private|protected)\s+/, // access modifiers
+        /^FROM\s+\w+/i, // Dockerfile
+        /^\w+\s*:\s*[\[\{]/, // YAML/JSON objects
+        /;\s*$/m, // statements ending with semicolon
+        /\{[^}]*\}/, // code blocks
+        /\/\/.*$|\/\*[\s\S]*?\*\//, // code comments
+        /\b(import|export|require)\s*[\(\{]/, // module imports
+        /\b(console\.|print\(|echo\s)/, // output statements
+        /\$\w+|@\w+/, // variables with sigils
+        /\b\d+\s*[+\-*\/]\s*\d+/, // mathematical expressions
       ];
       
-      const hasCodeIndicator = codeIndicators.some(pattern => pattern.test(content));
-      if (!hasCodeIndicator) {
+      const hasStrongCodeIndicator = strongCodeIndicators.some(pattern => pattern.test(content));
+      if (!hasStrongCodeIndicator) {
         return true;
       }
     }
     
-    // Check for natural language characteristics
-    const naturalLanguageScore = this.calculateNaturalLanguageScore(content);
-    const codeScore = this.calculateCodeScore(content);
+    // Enhanced natural language vs code analysis
+    const naturalLanguageScore = this.calculateEnhancedNaturalLanguageScore(content);
+    const codeScore = this.calculateEnhancedCodeScore(content);
+    const proseScore = this.calculateProseScore(content);
     
-    // If it looks more like natural language than code
-    if (naturalLanguageScore > codeScore * 1.5 && naturalLanguageScore > 0.3) {
+    // Strong natural language indicators
+    if (naturalLanguageScore > codeScore * 2 && naturalLanguageScore > 0.02) {
       return true;
     }
     
-    // Check for prose patterns
-    const proseIndicators = [
-      /\b(the|and|or|but|in|on|at|to|for|of|with|by)\b/gi, // common English words
-      /\b(is|are|was|were|been|being|have|has|had|do|does|did)\b/gi, // verbs
-      /[.!?]\s+[A-Z]/g, // sentence endings followed by capital letters
-      /\b[A-Z][a-z]+\b/g, // proper capitalization
-    ];
+    // High prose score indicates natural text
+    if (proseScore > 0.15 && content.length > 50) {
+      return true;
+    }
     
-    let proseMatches = 0;
-    proseIndicators.forEach(pattern => {
-      const matches = content.match(pattern);
-      if (matches) proseMatches += matches.length;
-    });
+    // Check for conversational patterns
+    if (this.hasConversationalPatterns(content)) {
+      return true;
+    }
     
-    const proseRatio = proseMatches / content.length;
+    // Check for narrative/descriptive text patterns
+    if (this.hasNarrativePatterns(content) && codeScore < 0.05) {
+      return true;
+    }
     
-    // High prose ratio suggests plain text
-    if (proseRatio > 0.05 && content.length > 100) {
+    // Check sentence structure
+    const sentenceScore = this.calculateSentenceScore(content);
+    if (sentenceScore > 0.3 && codeScore < naturalLanguageScore) {
       return true;
     }
     
@@ -577,19 +587,69 @@ export class LanguageDetector {
   }
 
   /**
-   * Calculate natural language score
+   * Enhanced natural language score calculation
    */
-  calculateNaturalLanguageScore(content) {
-    const indicators = [
-      /\b(the|and|or|but|in|on|at|to|for|of|with|by|this|that|these|those)\b/gi,
-      /\b(is|are|was|were|been|being|have|has|had|do|does|did|will|would|could|should)\b/gi,
-      /[.!?]\s*$/gm, // sentences
-      /\b[A-Z][a-z]{2,}\b/g, // words with proper capitalization
-      /,\s+/g, // comma usage
+  calculateEnhancedNaturalLanguageScore(content) {
+    const commonWords = [
+      /\b(the|and|or|but|in|on|at|to|for|of|with|by|this|that|these|those|a|an)\b/gi,
+      /\b(is|are|was|were|been|being|have|has|had|do|does|did|will|would|could|should|can|may|might)\b/gi,
+      /\b(I|you|he|she|it|we|they|me|him|her|us|them|my|your|his|her|its|our|their)\b/gi,
+      /\b(what|when|where|why|how|who|which|whose)\b/gi,
+      /\b(very|really|quite|rather|pretty|fairly|extremely|incredibly|absolutely)\b/gi,
     ];
     
     let totalMatches = 0;
-    indicators.forEach(pattern => {
+    commonWords.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) totalMatches += matches.length;
+    });
+    
+    // Normalize by word count instead of character count
+    const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+    return totalMatches / Math.max(wordCount, 1);
+  }
+
+  /**
+   * Enhanced code score calculation
+   */
+  calculateEnhancedCodeScore(content) {
+    const codeIndicators = [
+      /[{}();]/g, // code punctuation
+      /\b(function|class|def|var|let|const|if|for|while|return|import|export)\b/gi,
+      /[=<>!]+[=]/g, // comparison operators
+      /\/\/.*$|\/\*[\s\S]*?\*\/|#.*$/gm, // comments
+      /\b0x[0-9a-f]+\b/gi, // hex numbers
+      /\d+\.\d+/g, // floating point numbers
+      /\$\w+|@\w+/g, // variables with sigils
+      /\b\w+\s*\(/g, // function calls
+      /\b(true|false|null|undefined|None|nil)\b/gi, // programming literals
+    ];
+    
+    let totalMatches = 0;
+    codeIndicators.forEach(pattern => {
+      const matches = content.match(pattern);
+      if (matches) totalMatches += matches.length;
+    });
+    
+    const wordCount = content.split(/\s+/).filter(word => word.length > 0).length;
+    return totalMatches / Math.max(wordCount, 1);
+  }
+
+  /**
+   * Calculate prose/narrative score
+   */
+  calculateProseScore(content) {
+    const proseIndicators = [
+      /[.!?]\s+[A-Z]/g, // sentence endings followed by capital letters
+      /\b[A-Z][a-z]{2,}\b/g, // properly capitalized words
+      /,\s+/g, // comma usage
+      /\b(said|told|asked|replied|explained|described|mentioned|noted|observed)\b/gi, // narrative verbs
+      /\b(because|since|although|however|therefore|moreover|furthermore|nevertheless)\b/gi, // connective words
+      /\b(first|second|third|finally|then|next|after|before|during|while)\b/gi, // sequence words
+    ];
+    
+    let totalMatches = 0;
+    proseIndicators.forEach(pattern => {
       const matches = content.match(pattern);
       if (matches) totalMatches += matches.length;
     });
@@ -598,25 +658,74 @@ export class LanguageDetector {
   }
 
   /**
-   * Calculate code score
+   * Check for conversational patterns
    */
-  calculateCodeScore(content) {
-    const indicators = [
-      /[{}();]/g, // code punctuation
-      /\b(function|class|def|var|let|const|if|for|while)\b/gi, // code keywords
-      /[=<>!]+/g, // operators
-      /\/\/|\/\*|\*/g, // comments
-      /\b0x[0-9a-f]+\b/gi, // hex numbers
-      /\d+\.\d+/g, // floating point numbers
+  hasConversationalPatterns(content) {
+    const conversationalPatterns = [
+      /\b(hello|hi|hey|thanks|thank you|please|sorry|excuse me)\b/gi,
+      /\b(I think|I believe|I feel|I know|I understand|I agree|I disagree)\b/gi,
+      /\b(you know|you see|you understand|right\?|okay\?|isn't it\?)\b/gi,
+      /\b(well|so|now|actually|basically|essentially|obviously)\b/gi,
     ];
     
-    let totalMatches = 0;
-    indicators.forEach(pattern => {
-      const matches = content.match(pattern);
-      if (matches) totalMatches += matches.length;
+    let matches = 0;
+    conversationalPatterns.forEach(pattern => {
+      if (content.match(pattern)) matches++;
     });
     
-    return totalMatches / Math.max(content.length, 1);
+    return matches >= 2;
+  }
+
+  /**
+   * Check for narrative/descriptive patterns
+   */
+  hasNarrativePatterns(content) {
+    const narrativePatterns = [
+      /\b(once upon a time|in the beginning|long ago|yesterday|today|tomorrow)\b/gi,
+      /\b(beautiful|amazing|wonderful|terrible|horrible|fantastic|incredible)\b/gi,
+      /\b(walked|ran|jumped|looked|saw|heard|felt|thought|remembered)\b/gi,
+      /\b(suddenly|quickly|slowly|carefully|quietly|loudly)\b/gi,
+    ];
+    
+    let matches = 0;
+    narrativePatterns.forEach(pattern => {
+      if (content.match(pattern)) matches++;
+    });
+    
+    return matches >= 1;
+  }
+
+  /**
+   * Calculate sentence structure score
+   */
+  calculateSentenceScore(content) {
+    const sentences = content.split(/[.!?]+/).filter(s => s.trim().length > 5);
+    if (sentences.length === 0) return 0;
+    
+    let validSentences = 0;
+    sentences.forEach(sentence => {
+      const words = sentence.trim().split(/\s+/).filter(w => w.length > 0);
+      // Valid sentences typically have 3+ words and start with capital letter
+      if (words.length >= 3 && /^[A-Z]/.test(sentence.trim())) {
+        validSentences++;
+      }
+    });
+    
+    return validSentences / sentences.length;
+  }
+
+  /**
+   * Calculate natural language score (legacy method - redirects to enhanced version)
+   */
+  calculateNaturalLanguageScore(content) {
+    return this.calculateEnhancedNaturalLanguageScore(content);
+  }
+
+  /**
+   * Calculate code score (legacy method - redirects to enhanced version)
+   */
+  calculateCodeScore(content) {
+    return this.calculateEnhancedCodeScore(content);
   }
 
   /**

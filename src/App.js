@@ -567,12 +567,19 @@ function QuickDiffApp() {
       
       setDetectedLanguage(detection);
       
-      // Auto-update language setting for any detection that's not plaintext
-      if (detection.language !== 'plaintext' && detection.language !== settings.language) {
+      // Auto-update language setting for ANY detection (including plaintext)
+      if (detection.language !== settings.language) {
         setSettings(prev => ({
           ...prev,
           language: detection.language
         }));
+        
+        // Show notification for language changes
+        if (detection.language === 'plaintext') {
+          console.log('🔍 Auto-detected: Plain text');
+        } else {
+          console.log(`🔍 Auto-detected: ${detection.language} (${detection.confidence} confidence)`);
+        }
       }
     } else if (!settings.autoDetectLanguage) {
       // Reset to default when auto-detect is disabled
@@ -581,6 +588,19 @@ function QuickDiffApp() {
         confidence: 'low',
         method: 'default'
       });
+    } else if (!originalText.trim() && !changedText.trim()) {
+      // Reset to plaintext when both text areas are empty
+      setDetectedLanguage({
+        language: 'plaintext',
+        confidence: 'high',
+        method: 'empty'
+      });
+      if (settings.language !== 'plaintext') {
+        setSettings(prev => ({
+          ...prev,
+          language: 'plaintext'
+        }));
+      }
     }
   }, [originalText, changedText, settings.autoDetectLanguage, settings.language]);
 
