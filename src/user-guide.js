@@ -197,6 +197,9 @@ class ReactUserGuide {
         if (headerControls) {
             headerControls.appendChild(button);
         }
+        
+        // Add dynamic CSS for theme support
+        this.addModalStyles();
     }
     
     createQuickGuideModal() {
@@ -221,19 +224,20 @@ class ReactUserGuide {
         `;
         
         modal.innerHTML = `
-            <div style="
-                background: white;
+            <div class="quick-guide-modal-content" style="
+                background: linear-gradient(135deg, #F2F2F2 0%, #EAE4D5 100%);
                 border-radius: 16px;
                 max-width: 600px;
                 width: 90%;
                 max-height: 80vh;
                 overflow-y: auto;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                font-family: system-ui, -apple-system, sans-serif;
+                box-shadow: 0 20px 60px rgba(182, 176, 159, 0.3);
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+                border: 1px solid #B6B09F;
             ">
                 <div style="
                     padding: 24px 32px 20px;
-                    border-bottom: 1px solid #e5e7eb;
+                    border-bottom: 1px solid #B6B09F;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -242,14 +246,14 @@ class ReactUserGuide {
                         margin: 0;
                         font-size: 24px;
                         font-weight: 700;
-                        color: #1f2937;
+                        color: #000000;
                     ">QuickDiff Guide</h2>
                     <button id="close-guide-modal" style="
                         background: none;
                         border: none;
                         font-size: 28px;
                         cursor: pointer;
-                        color: #6b7280;
+                        color: #B6B09F;
                         padding: 0;
                         width: 32px;
                         height: 32px;
@@ -257,6 +261,7 @@ class ReactUserGuide {
                         align-items: center;
                         justify-content: center;
                         border-radius: 6px;
+                        transition: all 0.2s ease;
                     ">&times;</button>
                 </div>
                 <div style="padding: 24px 32px;">
@@ -265,12 +270,12 @@ class ReactUserGuide {
                             margin: 0 0 12px 0;
                             font-size: 18px;
                             font-weight: 600;
-                            color: #1f2937;
+                            color: #000000;
                         ">🚀 Getting Started</h3>
                         <ul style="
                             margin: 0;
                             padding-left: 20px;
-                            color: #4b5563;
+                            color: #000000;
                             line-height: 1.6;
                         ">
                             <li>Paste or type text in both areas</li>
@@ -285,12 +290,12 @@ class ReactUserGuide {
                             margin: 0 0 12px 0;
                             font-size: 18px;
                             font-weight: 600;
-                            color: #1f2937;
+                            color: #000000;
                         ">⚙️ Diff Modes</h3>
                         <ul style="
                             margin: 0;
                             padding-left: 20px;
-                            color: #4b5563;
+                            color: #000000;
                             line-height: 1.6;
                         ">
                             <li><strong>Line-by-line:</strong> Best for code and structured text</li>
@@ -304,12 +309,12 @@ class ReactUserGuide {
                             margin: 0 0 12px 0;
                             font-size: 18px;
                             font-weight: 600;
-                            color: #1f2937;
+                            color: #000000;
                         ">🎨 Features</h3>
                         <ul style="
                             margin: 0;
                             padding-left: 20px;
-                            color: #4b5563;
+                            color: #000000;
                             line-height: 1.6;
                         ">
                             <li>Drag & drop files for easy loading</li>
@@ -325,13 +330,13 @@ class ReactUserGuide {
                             margin: 0 0 12px 0;
                             font-size: 18px;
                             font-weight: 600;
-                            color: #1f2937;
+                            color: #000000;
                         ">⌨️ Keyboard Shortcuts</h3>
                         <div style="
                             display: grid;
                             grid-template-columns: 1fr 1fr;
                             gap: 16px;
-                            color: #4b5563;
+                            color: #000000;
                             line-height: 1.6;
                             font-size: 14px;
                         ">
@@ -340,62 +345,65 @@ class ReactUserGuide {
                                     margin: 0 0 8px 0;
                                     font-size: 14px;
                                     font-weight: 600;
-                                    color: #374151;
+                                    color: #000000;
                                 ">🔧 Main Actions</h4>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+Enter</kbd> Compare</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+K</kbd> Clear All</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+S</kbd> Swap Texts</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+C</kbd> Copy Results</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+Enter</kbd> Compare</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+K</kbd> Clear All</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+S</kbd> Swap Texts</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+C</kbd> Copy Results</div>
                             </div>
                             <div>
                                 <h4 style="
                                     margin: 0 0 8px 0;
                                     font-size: 14px;
                                     font-weight: 600;
-                                    color: #374151;
+                                    color: #000000;
                                 ">🎨 Interface</h4>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+D</kbd> Toggle Theme</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Ctrl+H</kbd> High Contrast</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">F1</kbd> Show Guide</div>
-                                <div style="margin-bottom: 4px;"><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Escape</kbd> Close Overlays</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+D</kbd> Toggle Theme</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Ctrl+H</kbd> High Contrast</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">F1</kbd> Show Guide</div>
+                                <div style="margin-bottom: 4px;"><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Escape</kbd> Close Overlays</div>
                             </div>
                         </div>
                         <div style="
                             margin-top: 12px;
                             padding-top: 12px;
-                            border-top: 1px solid #e5e7eb;
+                            border-top: 1px solid #B6B09F;
                         ">
                             <h4 style="
                                 margin: 0 0 8px 0;
                                 font-size: 14px;
                                 font-weight: 600;
-                                color: #374151;
+                                color: #000000;
                             ">🧠 AI Features</h4>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+1</kbd> AI Explain</div>
-                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+2</kbd> AI Rewrite</div>
-                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+3</kbd> AI Summary</div>
-                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+4</kbd> AI Tone</div>
-                                <div><kbd style="background: #f3f4f6; padding: 2px 6px; border-radius: 3px; font-size: 12px;">Alt+5</kbd> AI Cleanup</div>
+                                <div><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Alt+1</kbd> AI Explain</div>
+                                <div><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Alt+2</kbd> AI Rewrite</div>
+                                <div><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Alt+3</kbd> AI Summary</div>
+                                <div><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Alt+4</kbd> AI Tone</div>
+                                <div><kbd style="background: #EAE4D5; padding: 2px 6px; border-radius: 3px; font-size: 12px; border: 1px solid #B6B09F; color: #000000;">Alt+5</kbd> AI Cleanup</div>
                             </div>
                         </div>
                     </div>
                     
                     <div style="
-                        background: #f3f4f6;
+                        background: linear-gradient(135deg, #EAE4D5 0%, #F2F2F2 100%);
                         padding: 16px;
                         border-radius: 8px;
                         text-align: center;
+                        border: 1px solid #B6B09F;
                     ">
                         <button id="restart-tour" style="
-                            background: #3b82f6;
-                            color: white;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 6px;
+                            background: linear-gradient(135deg, #000000 0%, #B6B09F 100%);
+                            color: #F2F2F2;
+                            border: 1px solid #B6B09F;
+                            padding: 12px 20px;
+                            border-radius: 8px;
                             cursor: pointer;
                             font-size: 14px;
                             font-weight: 500;
+                            transition: all 0.3s ease;
+                            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
                         ">🎯 Restart Tour</button>
                     </div>
                 </div>
@@ -403,6 +411,142 @@ class ReactUserGuide {
         `;
         
         document.body.appendChild(modal);
+    }
+    
+    addModalStyles() {
+        // Remove existing styles
+        const existingStyles = document.getElementById('quick-guide-dynamic-styles');
+        if (existingStyles) existingStyles.remove();
+        
+        const style = document.createElement('style');
+        style.id = 'quick-guide-dynamic-styles';
+        style.textContent = `
+            /* Quick Guide Modal Theme Support */
+            [data-theme="dark"] .quick-guide-modal-content {
+                background: linear-gradient(135deg, #000000 0%, #B6B09F 100%) !important;
+                border: 1px solid #B6B09F !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
+            }
+            
+            [data-theme="dark"] .quick-guide-modal-content h2,
+            [data-theme="dark"] .quick-guide-modal-content h3,
+            [data-theme="dark"] .quick-guide-modal-content h4,
+            [data-theme="dark"] .quick-guide-modal-content ul,
+            [data-theme="dark"] .quick-guide-modal-content div {
+                color: #F2F2F2 !important;
+            }
+            
+            [data-theme="dark"] .quick-guide-modal-content kbd {
+                background: #000000 !important;
+                border: 1px solid #EAE4D5 !important;
+                color: #F2F2F2 !important;
+            }
+            
+            [data-theme="dark"] #close-guide-modal {
+                color: #EAE4D5 !important;
+            }
+            
+            [data-theme="dark"] #close-guide-modal:hover {
+                background: rgba(242, 242, 242, 0.1) !important;
+                color: #F2F2F2 !important;
+            }
+            
+            [data-theme="dark"] #restart-tour {
+                background: linear-gradient(135deg, #F2F2F2 0%, #EAE4D5 100%) !important;
+                color: #000000 !important;
+                border: 1px solid #EAE4D5 !important;
+            }
+            
+            [data-theme="dark"] #restart-tour:hover {
+                background: linear-gradient(135deg, #EAE4D5 0%, #F2F2F2 100%) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 25px rgba(242, 242, 242, 0.2) !important;
+            }
+            
+            /* Light theme hover effects */
+            #close-guide-modal:hover {
+                background: rgba(182, 176, 159, 0.1) !important;
+                color: #000000 !important;
+            }
+            
+            #restart-tour:hover {
+                background: linear-gradient(135deg, #B6B09F 0%, #000000 100%) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4) !important;
+            }
+            
+            /* High contrast support */
+            [data-contrast="high"] .quick-guide-modal-content {
+                border: 3px solid #000000 !important;
+                background: #ffffff !important;
+            }
+            
+            [data-contrast="high"] .quick-guide-modal-content h2,
+            [data-contrast="high"] .quick-guide-modal-content h3,
+            [data-contrast="high"] .quick-guide-modal-content h4,
+            [data-contrast="high"] .quick-guide-modal-content ul,
+            [data-contrast="high"] .quick-guide-modal-content div {
+                color: #000000 !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-contrast="high"] .quick-guide-modal-content kbd {
+                background: #ffffff !important;
+                border: 3px solid #000000 !important;
+                color: #000000 !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-contrast="high"] #restart-tour {
+                background: #000000 !important;
+                color: #ffffff !important;
+                border: 3px solid #ffffff !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-contrast="high"] #restart-tour:hover {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 3px solid #000000 !important;
+            }
+            
+            /* Dark + High contrast */
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content {
+                border: 3px solid #ffffff !important;
+                background: #000000 !important;
+            }
+            
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content h2,
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content h3,
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content h4,
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content ul,
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content div {
+                color: #ffffff !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-theme="dark"][data-contrast="high"] .quick-guide-modal-content kbd {
+                background: #000000 !important;
+                border: 3px solid #ffffff !important;
+                color: #ffffff !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-theme="dark"][data-contrast="high"] #restart-tour {
+                background: #ffffff !important;
+                color: #000000 !important;
+                border: 3px solid #000000 !important;
+                font-weight: 700 !important;
+            }
+            
+            [data-theme="dark"][data-contrast="high"] #restart-tour:hover {
+                background: #000000 !important;
+                color: #ffffff !important;
+                border: 3px solid #ffffff !important;
+            }
+        `;
+        
+        document.head.appendChild(style);
     }
     
     setupEventListeners() {
