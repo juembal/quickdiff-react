@@ -318,7 +318,7 @@ Focus on the most important information and any significant changes between vers
           <div class="ai-section">
             <h5 class="section-title">📄 Key Points Summary</h5>
             <div class="summary-box">
-              ${this.formatAIResponse(summary)}
+              ${this.formatAIResponse(summary, 'summary')}
             </div>
           </div>
           
@@ -504,8 +504,8 @@ Look for: spacing issues, punctuation problems, inconsistent formatting, redunda
     };
   }
 
-  // Format AI response as clean bulleted list
-  formatAIResponse(text) {
+  // Format AI response - bullets for analysis, paragraphs for summaries
+  formatAIResponse(text, type = 'default') {
     if (!text) return '';
     
     // Clean up the text
@@ -519,7 +519,35 @@ Look for: spacing issues, punctuation problems, inconsistent formatting, redunda
       // Trim whitespace
       .trim();
     
-    // Split into sentences and logical points
+    // For summaries, use paragraph format for better flow
+    if (type === 'summary') {
+      // Split into logical paragraphs
+      const paragraphs = cleaned
+        .split(/\n\s*\n+/)
+        .map(p => p.trim())
+        .filter(p => p.length > 20); // Filter out very short fragments
+      
+      // If we have multiple paragraphs, format them nicely
+      if (paragraphs.length > 1) {
+        return paragraphs.map(paragraph => `<p style="margin-bottom: 16px; line-height: 1.6;">${paragraph}</p>`).join('');
+      }
+      // Single paragraph - split by sentences for better readability
+      else {
+        const sentences = cleaned.split(/(?<=\.)\s+(?=[A-Z])/).filter(s => s.trim().length > 10);
+        if (sentences.length > 2) {
+          // Group sentences into logical paragraphs (2-3 sentences each)
+          const groupedParagraphs = [];
+          for (let i = 0; i < sentences.length; i += 2) {
+            const group = sentences.slice(i, i + 2).join(' ').trim();
+            if (group) groupedParagraphs.push(group);
+          }
+          return groupedParagraphs.map(paragraph => `<p style="margin-bottom: 16px; line-height: 1.6;">${paragraph}</p>`).join('');
+        }
+        return `<p style="line-height: 1.6;">${cleaned}</p>`;
+      }
+    }
+    
+    // For other types (explain, rewrite, tone, cleanup), use bullet format
     let points = [];
     
     // First try to split by numbered items (1., 2., 3., etc.)
@@ -551,11 +579,11 @@ Look for: spacing issues, punctuation problems, inconsistent formatting, redunda
     
     // If we have multiple points, format as bulleted list
     if (formattedPoints.length > 1) {
-      return `<ul>${formattedPoints.map(point => `<li>${point}</li>`).join('')}</ul>`;
+      return `<ul style="line-height: 1.6; margin: 12px 0;">${formattedPoints.map(point => `<li style="margin-bottom: 8px;">${point}</li>`).join('')}</ul>`;
     }
     // If only one point or no clear structure, return as paragraph
     else {
-      return `<p>${cleaned}</p>`;
+      return `<p style="line-height: 1.6;">${cleaned}</p>`;
     }
   }
 
