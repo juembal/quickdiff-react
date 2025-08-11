@@ -370,6 +370,19 @@ function QuickDiffApp() {
         setAiResults(prev => [...prev, analysis]);
         setShowAiResults(true);
         showNotification('✅ Groq AI analysis completed');
+        
+        // Auto-scroll to AI results
+        setTimeout(() => {
+          const aiResultsElement = document.querySelector('.ai-results-section');
+          if (aiResultsElement) {
+            aiResultsElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          }
+        }, 100);
+        
       } else if (hfService.current.isConfigured()) {
         // Fallback to Hugging Face API
         showNotification('Generating AI analysis with Hugging Face...');
@@ -377,6 +390,19 @@ function QuickDiffApp() {
         setAiResults(prev => [...prev, analysis]);
         setShowAiResults(true);
         showNotification('✅ Hugging Face AI analysis completed');
+        
+        // Auto-scroll to AI results
+        setTimeout(() => {
+          const aiResultsElement = document.querySelector('.ai-results-section');
+          if (aiResultsElement) {
+            aiResultsElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          }
+        }, 100);
+        
       } else {
         // Generate local analysis when no API is configured
         showNotification('Generating local analysis (No AI API configured)');
@@ -384,6 +410,18 @@ function QuickDiffApp() {
         setAiResults(prev => [...prev, analysis]);
         setShowAiResults(true);
         showNotification('Local analysis completed');
+        
+        // Auto-scroll to AI results
+        setTimeout(() => {
+          const aiResultsElement = document.querySelector('.ai-results-section');
+          if (aiResultsElement) {
+            aiResultsElement.scrollIntoView({ 
+              behavior: 'smooth', 
+              block: 'start',
+              inline: 'nearest'
+            });
+          }
+        }, 100);
       }
     } catch (error) {
       console.error('AI Analysis Error:', error);
@@ -396,12 +434,37 @@ function QuickDiffApp() {
           setAiResults(prev => [...prev, fallbackAnalysis]);
           setShowAiResults(true);
           showNotification('✅ Hugging Face fallback analysis completed');
+          
+          // Auto-scroll to AI results
+          setTimeout(() => {
+            const aiResultsElement = document.querySelector('.ai-results-section');
+            if (aiResultsElement) {
+              aiResultsElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              });
+            }
+          }, 100);
+          
         } else {
           // Generate local analysis as final fallback
           const fallbackAnalysis = await hfService.current.generateLocalAnalysis(type, originalText, changedText);
           setAiResults(prev => [...prev, fallbackAnalysis]);
           setShowAiResults(true);
           showNotification('Local analysis completed (AI services unavailable)');
+          
+          // Auto-scroll to AI results
+          setTimeout(() => {
+            const aiResultsElement = document.querySelector('.ai-results-section');
+            if (aiResultsElement) {
+              aiResultsElement.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'start',
+                inline: 'nearest'
+              });
+            }
+          }, 100);
         }
       } catch (fallbackError) {
         showNotification(`Analysis failed: ${error.message}`);
