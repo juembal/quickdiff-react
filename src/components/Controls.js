@@ -10,7 +10,10 @@ const Controls = ({
   onExportMd,
   onExportPdf,
   onAIAnalysis,
-  hasResults
+  hasResults,
+  isGeneratingAI,
+  hfConfigured,
+  groqConfigured
 }) => {
   return (
     <div className="controls">
@@ -74,33 +77,45 @@ const Controls = ({
             <button 
               className="btn btn-secondary btn-export" 
               onClick={() => onAIAnalysis('explain')}
+              disabled={isGeneratingAI}
             >
-              🧠 Explain
+              {isGeneratingAI ? '🔄' : '🧠'} Explain
             </button>
             <button 
               className="btn btn-secondary btn-export" 
               onClick={() => onAIAnalysis('rewrite')}
+              disabled={isGeneratingAI}
             >
-              ✨ Rewrite
+              {isGeneratingAI ? '🔄' : '✨'} Rewrite
             </button>
             <button 
               className="btn btn-secondary btn-export" 
               onClick={() => onAIAnalysis('summary')}
+              disabled={isGeneratingAI}
             >
-              📝 Summary
+              {isGeneratingAI ? '🔄' : '📝'} Summary
             </button>
             <button 
               className="btn btn-secondary btn-export" 
               onClick={() => onAIAnalysis('tone')}
+              disabled={isGeneratingAI}
             >
-              🎭 Tone
+              {isGeneratingAI ? '🔄' : '🎭'} Tone
             </button>
             <button 
               className="btn btn-secondary btn-export" 
               onClick={() => onAIAnalysis('cleanup')}
+              disabled={isGeneratingAI}
             >
-              🧹 Cleanup
+              {isGeneratingAI ? '🔄' : '🧹'} Cleanup
             </button>
+          </div>
+          <div className="ai-status">
+            <small>
+              {groqConfigured ? '✅ Groq AI Ready' : 
+               hfConfigured ? '✅ HF API Ready' : 
+               '⚠️ Local Analysis Only'}
+            </small>
           </div>
         </div>
       </div>

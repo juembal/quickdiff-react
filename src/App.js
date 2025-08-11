@@ -10,7 +10,8 @@ import Results from './components/Results';
 import ReactUserGuide from './user-guide.js';
 import { DiffEngine } from './utils/DiffEngine';
 import { ExportUtils } from './utils/ExportUtils';
-import { AIEngine } from './utils/AIEngine';
+import { HuggingFaceService } from './utils/HuggingFaceService';
+import { GroqService } from './utils/GroqService';
 import { LanguageDetector } from './utils/LanguageDetector';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 
@@ -45,6 +46,7 @@ function QuickDiffApp() {
   // AI state
   const [aiResults, setAiResults] = useState([]);
   const [showAiResults, setShowAiResults] = useState(false);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
 
   // Navigation state
   const [changes, setChanges] = useState([]);
@@ -60,7 +62,8 @@ function QuickDiffApp() {
   const debounceTimer = useRef(null);
   const diffEngine = useRef(new DiffEngine());
   const exportUtils = useRef(new ExportUtils());
-  const aiEngine = useRef(new AIEngine());
+  const hfService = useRef(new HuggingFaceService());
+  const groqService = useRef(new GroqService());
   const languageDetector = useRef(new LanguageDetector());
   
   const { showNotification } = useNotification();
@@ -98,6 +101,51 @@ function QuickDiffApp() {
   useEffect(() => {
     loadSettings();
     loadTheme();
+    
+    // Debug AI API configurations
+    console.log('=== QuickDiff App Debug ===');
+    console.log('Environment variables check:');
+    console.log('REACT_APP_GROQ_API_KEY:', process.env.REACT_APP_GROQ_API_KEY ? 'Found' : 'Not found');
+    console.log('REACT_APP_HUGGINGFACE_API_KEY:', process.env.REACT_APP_HUGGINGFACE_API_KEY ? 'Found' : 'Not found');
+    
+    if (groqService.current) {
+      groqService.current.debugConfig();
+      
+      // Make Groq service available globally for testing
+      window.testGroq = async () => {
+        console.log('🧪 Testing Groq API...');
+        try {
+          const result = await groqService.current.testConnection();
+          console.log('🧪 Test result:', result);
+          return result;
+        } catch (error) {
+          console.error('🧪 Test failed:', error);
+          return { success: false, error: error.message };
+        }
+      };
+      
+      console.log('💡 You can test Groq API by running: testGroq() in console');
+    }
+    
+    if (hfService.current) {
+      hfService.current.debugConfig();
+      
+      // Make HF service available globally for testing
+      window.testHF = async () => {
+        console.log('🧪 Testing Hugging Face API...');
+        try {
+          const result = await hfService.current.testConnection();
+          console.log('🧪 Test result:', result);
+          return result;
+        } catch (error) {
+          console.error('🧪 Test failed:', error);
+          return { success: false, error: error.message };
+        }
+      };
+      
+      console.log('💡 You can test HF API by running: testHF() in console');
+    }
+    console.log('========================');
   }, []);
 
 
@@ -182,6 +230,9 @@ function QuickDiffApp() {
       setDiffResult(result);
       setShowResults(true);
       collectChanges(result);
+      
+      // Auto-generate AI analysis is disabled to prevent duplicate results
+      // Users can manually trigger AI analysis using the AI buttons
       
       // Auto-scroll to results only if live preview is disabled
       if (!settings.livePreview) {
@@ -297,16 +348,67 @@ function QuickDiffApp() {
   };
 
   // AI functions
-  const generateAIAnalysis = (type) => {
+  const generateAIAnalysis = async (type) => {
     if (!originalText.trim() && !changedText.trim()) {
       showNotification('Please enter some text to analyze');
       return;
     }
 
-    const analysis = aiEngine.current.generateAnalysis(type, originalText, changedText);
-    setAiResults(prev => [...prev, analysis]);
-    setShowAiResults(true);
-    showNotification('AI analysis completed');
+    // Check if this analysis type already exists to prevent duplicates
+    const existingAnalysis = aiResults.find(result => result.type === type);
+    if (existingAnalysis) {
+      showNotification(`${type} analysis already exists. Clear AI results first to regenerate.`);
+      return;
+    }
+
+    setIsGeneratingAI(true);
+    try {
+      if (groqService.current.isConfigured()) {
+        // Use Groq API when configured (PREFERRED)
+        showNotification('Generating AI analysis with Groq...');
+        const analysis = await groqService.current.generateAnalysis(type, originalText, changedText);
+        setAiResults(prev => [...prev, analysis]);
+        setShowAiResults(true);
+        showNotification('✅ Groq AI analysis completed');
+      } else if (hfService.current.isConfigured()) {
+        // Fallback to Hugging Face API
+        showNotification('Generating AI analysis with Hugging Face...');
+        const analysis = await hfService.current.generateAnalysis(type, originalText, changedText);
+        setAiResults(prev => [...prev, analysis]);
+        setShowAiResults(true);
+        showNotification('✅ Hugging Face AI analysis completed');
+      } else {
+        // Generate local analysis when no API is configured
+        showNotification('Generating local analysis (No AI API configured)');
+        const analysis = await hfService.current.generateLocalAnalysis(type, originalText, changedText);
+        setAiResults(prev => [...prev, analysis]);
+        setShowAiResults(true);
+        showNotification('Local analysis completed');
+      }
+    } catch (error) {
+      console.error('AI Analysis Error:', error);
+      // Try to generate fallback analysis even on error
+      try {
+        if (groqService.current.isConfigured() && !error.message.includes('Groq')) {
+          // If Groq failed, try Hugging Face
+          showNotification('Groq failed, trying Hugging Face...');
+          const fallbackAnalysis = await hfService.current.generateAnalysis(type, originalText, changedText);
+          setAiResults(prev => [...prev, fallbackAnalysis]);
+          setShowAiResults(true);
+          showNotification('✅ Hugging Face fallback analysis completed');
+        } else {
+          // Generate local analysis as final fallback
+          const fallbackAnalysis = await hfService.current.generateLocalAnalysis(type, originalText, changedText);
+          setAiResults(prev => [...prev, fallbackAnalysis]);
+          setShowAiResults(true);
+          showNotification('Local analysis completed (AI services unavailable)');
+        }
+      } catch (fallbackError) {
+        showNotification(`Analysis failed: ${error.message}`);
+      }
+    } finally {
+      setIsGeneratingAI(false);
+    }
   };
 
   const clearAIResults = () => {
@@ -545,6 +647,9 @@ function QuickDiffApp() {
           onExportPdf={exportToPdf}
           onAIAnalysis={generateAIAnalysis}
           hasResults={showResults}
+          isGeneratingAI={isGeneratingAI}
+          hfConfigured={hfService.current.isConfigured()}
+          groqConfigured={groqService.current.isConfigured()}
         />
         
         <Legend />
@@ -569,6 +674,7 @@ function QuickDiffApp() {
             onRemoveAICard={removeAICard}
           />
         )}
+        
         
       </div>
     </div>
