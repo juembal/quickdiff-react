@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
 import './user-guide.css';
-import './user-guide.js';
 import Header from './components/Header';
 import SettingsPanel from './components/SettingsPanel';
 import InputSection from './components/InputSection';
@@ -592,4 +591,4 @@ function App() {
   );
 }
 
-export default App;
+export default QuickDiffApp;
