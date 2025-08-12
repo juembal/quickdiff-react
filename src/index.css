@@ -303,10 +303,34 @@
     left: 10px;
     right: 10px;
     top: 10px;
+    max-width: calc(100vw - 20px);
   }
   
   .notification {
     max-width: none;
+    padding: 12px 16px;
+    font-size: 14px;
+    border-radius: 12px;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+}
+
+@media (max-width: 480px) {
+  .notification-container {
+    left: 8px;
+    right: 8px;
+    top: 8px;
+    max-width: calc(100vw - 16px);
+  }
+  
+  .notification {
+    max-width: none;
+    padding: 10px 14px;
+    font-size: 13px;
+    border-radius: 10px;
+    line-height: 1.4;
   }
 }
 

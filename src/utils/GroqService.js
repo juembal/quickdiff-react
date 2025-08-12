@@ -152,53 +152,59 @@ Please provide a detailed analysis of the differences, changes in meaning, style
       const aiInsight = await this.callGroqAPI(messages);
       console.log('✅ Groq explanation received');
       
-      return `
-        <div class="ai-explanation">
-          <div class="ai-header">
-            <h4>📊 Groq AI Text Analysis</h4>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">📈 Text Statistics</h5>
-            <div class="stats-grid">
-              <div class="stat-card">
-                <div class="stat-label">Original Text</div>
-                <div class="stat-value">${stats.originalLines} lines • ${stats.originalWords} words • ${stats.originalChars} chars</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Changed Text</div>
-                <div class="stat-value">${stats.changedLines} lines • ${stats.changedWords} words • ${stats.changedChars} chars</div>
-              </div>
-              <div class="stat-card">
-                <div class="stat-label">Net Changes</div>
-                <div class="stat-value">
-                  ${Math.abs(stats.changedLines - stats.originalLines)} lines • 
-                  ${Math.abs(stats.changedWords - stats.originalWords)} words • 
-                  ${Math.abs(stats.changedChars - stats.originalChars)} chars
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">🤖 AI Analysis</h5>
-            <div class="ai-insight-box">
-              ${this.formatAIResponse(aiInsight)}
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">🔍 Key Findings</h5>
-            <div class="findings-list">
-              ${stats.originalLines !== stats.changedLines ? `<div class="finding-item">📄 Line count: ${stats.originalLines} → ${stats.changedLines}</div>` : ''}
-              ${stats.originalWords !== stats.changedWords ? `<div class="finding-item">📝 Word count: ${stats.originalWords} → ${stats.changedWords}</div>` : ''}
-              ${originalText === changedText ? '<div class="finding-item">✅ No changes detected - texts are identical</div>' : ''}
-              ${Math.abs(stats.changedChars - stats.originalChars) > stats.originalChars * 0.5 ? '<div class="finding-item">⚠️ Significant content change detected (>50%)</div>' : ''}
-              ${Math.abs(stats.changedChars - stats.originalChars) < stats.originalChars * 0.1 ? '<div class="finding-item">✨ Minor changes detected (<10%)</div>' : ''}
-            </div>
-          </div>
-        </div>
-      `;
+      // Create detailed structured analysis
+      const originalPreview = originalText.length > 50 ? `"${originalText.substring(0, 50)}..."` : `"${originalText}"`;
+      const changedPreview = changedText.length > 50 ? `"${changedText.substring(0, 50)}..."` : `"${changedText}"`;
+      
+      const analysis = `📊 **Text Analysis**
+
+📝 **Content**
+
+**Original:** ${originalPreview} ${originalText.length > 50 ? `— ${originalText.length} character text` : originalText.trim() === '' ? '— empty content' : originalText.length < 10 ? '— appears to be a short sequence' : ''}
+
+**Changed:** ${changedPreview} ${changedText.length > 50 ? `— ${changedText.length} character text` : changedText.trim() === '' ? '— complete removal of content' : changedText.length < 10 ? '— appears to be a short sequence' : ''}
+
+**Result:** ${originalText === changedText ? 'No content differences detected.' : stats.changedChars === 0 ? 'Complete content removal.' : Math.abs(stats.changedChars - stats.originalChars) > stats.originalChars * 0.5 ? 'Significant difference in content.' : 'Moderate content changes detected.'}
+
+🧠 **Meaning**
+
+${aiInsight}
+
+🎨 **Style**
+
+**Original:** ${originalText.trim() === '' ? 'No style — empty content' : originalText.length < 10 ? 'Minimal, informal text' : 'Standard text formatting'}
+
+**Changed:** ${changedText.trim() === '' ? 'Minimalist — no content at all' : changedText.length < 10 ? 'Minimal, informal text' : 'Standard text formatting'}
+
+**Result:** ${originalText === changedText ? 'No style changes detected.' : 'Style analysis shows formatting differences between versions.'}
+
+🏗️ **Structure**
+
+**Original:** ${stats.originalLines === 1 ? 'Single line structure' : `Multi-line structure (${stats.originalLines} lines)`}
+
+**Changed:** ${stats.changedLines === 1 ? 'Single line structure' : stats.changedLines === 0 ? 'No structure — represents absence of content' : `Multi-line structure (${stats.changedLines} lines)`}
+
+📋 **Summary**
+
+The primary differences are in ${originalText === changedText ? 'formatting and presentation' : 'content and structure'}. ${originalText.trim() === '' && changedText.trim() === '' ? 'Both versions are empty.' : originalText.trim() === '' ? 'Content was added to an empty document.' : changedText.trim() === '' ? 'All content was removed from the original.' : 'Content modifications were made between versions.'}
+
+📊 **Statistics**
+
+**Original:** ${stats.originalLines} line${stats.originalLines !== 1 ? 's' : ''}, ${stats.originalWords} word${stats.originalWords !== 1 ? 's' : ''}, ${stats.originalChars} character${stats.originalChars !== 1 ? 's' : ''}
+
+**Changed:** ${stats.changedLines} line${stats.changedLines !== 1 ? 's' : ''}, ${stats.changedWords} word${stats.changedWords !== 1 ? 's' : ''}, ${stats.changedChars} character${stats.changedChars !== 1 ? 's' : ''}
+
+**Net Change:** ${Math.abs(stats.changedLines - stats.originalLines)} line${Math.abs(stats.changedLines - stats.originalLines) !== 1 ? 's' : ''}, ${Math.abs(stats.changedWords - stats.originalWords)} word${Math.abs(stats.changedWords - stats.originalWords) !== 1 ? 's' : ''}, ${Math.abs(stats.changedChars - stats.originalChars)} character${Math.abs(stats.changedChars - stats.originalChars) !== 1 ? 's' : ''} ${stats.changedChars > stats.originalChars ? 'added' : stats.changedChars < stats.originalChars ? 'removed' : 'unchanged'}
+
+🔍 **Key Findings**
+
+${stats.originalWords !== stats.changedWords ? `• 📝 Word count changed from **${stats.originalWords}** → **${stats.changedWords}**` : ''}
+${stats.originalLines !== stats.changedLines ? `• 📄 Line count changed from **${stats.originalLines}** → **${stats.changedLines}**` : ''}
+${originalText === changedText ? '• ✅ **No changes detected** — texts are identical' : ''}
+${Math.abs(stats.changedChars - stats.originalChars) > stats.originalChars * 0.5 ? '• ⚠️ **Significant content change detected** (>50% length change)' : ''}
+${Math.abs(stats.changedChars - stats.originalChars) < stats.originalChars * 0.1 && originalText !== changedText ? '• ✨ **Minor changes detected** (<10% length change)' : ''}`;
+
+      return analysis;
     } catch (error) {
       console.error('❌ Groq API failed for explanation:', error);
       throw error;
@@ -229,56 +235,21 @@ Provide concrete suggestions for improvement, including specific examples where 
       const suggestions = await this.callGroqAPI(messages);
       console.log('✅ Groq rewrite suggestions received');
       
-      return `
-        <div class="ai-rewrite">
-          <div class="ai-header">
-            <h4>✨ Groq AI Rewrite Suggestions</h4>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">🎯 AI-Generated Suggestions</h5>
-            <div class="suggestions-box">
-              ${this.formatAIResponse(suggestions)}
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">📝 Writing Best Practices</h5>
-            <div class="tips-grid">
-              <div class="tip-item">
-                <div class="tip-icon">🎯</div>
-                <div class="tip-content">
-                  <strong>Clarity:</strong> Use clear, concise language and avoid jargon
-                </div>
-              </div>
-              <div class="tip-item">
-                <div class="tip-icon">📏</div>
-                <div class="tip-content">
-                  <strong>Structure:</strong> Break up long sentences for better readability
-                </div>
-              </div>
-              <div class="tip-item">
-                <div class="tip-icon">💪</div>
-                <div class="tip-content">
-                  <strong>Voice:</strong> Use active voice when possible
-                </div>
-              </div>
-              <div class="tip-item">
-                <div class="tip-icon">🔄</div>
-                <div class="tip-content">
-                  <strong>Consistency:</strong> Ensure consistent terminology throughout
-                </div>
-              </div>
-              <div class="tip-item">
-                <div class="tip-icon">🌊</div>
-                <div class="tip-content">
-                  <strong>Flow:</strong> Add transitional phrases for better flow
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      // Create clean rewrite suggestions like ChatGPT with bold and emojis
+      const rewriteAnalysis = `✨ **Writing Improvement Suggestions**
+
+${suggestions}
+
+📝 **General Writing Tips:**
+• 🎯 Use **clear, concise language** and avoid unnecessary jargon
+• 📏 Break up **long sentences** into shorter, more readable ones
+• 💪 Use **active voice** when possible for stronger impact
+• 🔄 Ensure **consistent terminology** and tone throughout
+• 🌊 Add **transitional phrases** to improve flow between ideas
+• 🧹 Remove **redundant words** and phrases
+• 📋 Use **specific examples** to support your points`;
+
+      return rewriteAnalysis;
     } catch (error) {
       console.error('❌ Groq API failed for rewrite suggestions:', error);
       throw error;
@@ -309,38 +280,20 @@ Focus on the most important information and any significant changes between vers
       const summary = await this.callGroqAPI(messages);
       console.log('✅ Groq summary received');
       
-      return `
-        <div class="ai-summary">
-          <div class="ai-header">
-            <h4>📝 Groq AI Summary</h4>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">📄 Key Points Summary</h5>
-            <div class="summary-box">
-              ${this.formatAIResponse(summary, 'summary')}
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">📊 Document Overview</h5>
-            <div class="overview-stats">
-              <div class="overview-item">
-                <span class="overview-label">📏 Combined Length:</span>
-                <span class="overview-value">${combinedText.length} characters</span>
-              </div>
-              <div class="overview-item">
-                <span class="overview-label">🔍 Analysis Scope:</span>
-                <span class="overview-value">Both original and changed versions</span>
-              </div>
-              <div class="overview-item">
-                <span class="overview-label">🎯 Focus:</span>
-                <span class="overview-value">Main points and key differences</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      // Create clean summary like ChatGPT with bold and emojis
+      const summaryAnalysis = `📝 **Summary**
+
+${summary}
+
+📊 **Document Overview:**
+• 📏 **Combined length:** ${combinedText.length} characters
+• 🔍 **Analysis scope:** Both original and changed versions
+• 🎯 **Focus:** Main points and key differences between versions
+• ⚡ **Processing:** AI-powered analysis using advanced language models
+
+💡 This summary captures the **most important information** and highlights **key changes** between the text versions.`;
+
+      return summaryAnalysis;
     } catch (error) {
       console.error('❌ Groq API failed for summary:', error);
       throw error;
@@ -372,50 +325,22 @@ Analyze: emotional tone, formality level, sentiment, audience appropriateness, a
       const toneAnalysis = await this.callGroqAPI(messages);
       console.log('✅ Groq tone analysis received');
       
-      return `
-        <div class="ai-tone">
-          <div class="ai-header">
-            <h4>🎭 Groq AI Tone Analysis</h4>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">🎯 Tone Assessment</h5>
-            <div class="tone-analysis-box">
-              ${this.formatAIResponse(toneAnalysis)}
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">💡 Tone Guidelines</h5>
-            <div class="guidelines-grid">
-              <div class="guideline-item">
-                <div class="guideline-icon">🎯</div>
-                <div class="guideline-content">
-                  <strong>Consistency:</strong> Maintain consistent voice throughout your document
-                </div>
-              </div>
-              <div class="guideline-item">
-                <div class="guideline-icon">👥</div>
-                <div class="guideline-content">
-                  <strong>Audience:</strong> Match tone to your purpose and audience
-                </div>
-              </div>
-              <div class="guideline-item">
-                <div class="guideline-icon">🌍</div>
-                <div class="guideline-content">
-                  <strong>Context:</strong> Consider cultural context and expectations
-                </div>
-              </div>
-              <div class="guideline-item">
-                <div class="guideline-icon">⚖️</div>
-                <div class="guideline-content">
-                  <strong>Balance:</strong> Balance professionalism with accessibility
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      // Create clean tone analysis like ChatGPT with bold and emojis
+      const toneAnalysisResult = `🎭 **Tone Analysis**
+
+${toneAnalysis}
+
+💡 **Tone Guidelines:**
+• 🎯 Maintain **consistent voice** throughout your document
+• 👥 Match tone to your **target audience** and purpose
+• 🌡️ Consider the **emotional impact** of your word choices
+• ⚖️ Balance **professionalism** with accessibility
+• 🔄 Ensure tone shifts are **intentional** and serve a purpose
+• 🌍 Consider **cultural context** and reader expectations
+
+✨ **Remember:** Effective tone helps **convey your message clearly** and builds **connection** with your audience.`;
+
+      return toneAnalysisResult;
     } catch (error) {
       console.error('❌ Groq API failed for tone analysis:', error);
       throw error;
@@ -446,46 +371,23 @@ Look for: spacing issues, punctuation problems, inconsistent formatting, redunda
       const cleanupAnalysis = await this.callGroqAPI(messages);
       console.log('✅ Groq cleanup analysis received');
       
-      return `
-        <div class="ai-cleanup">
-          <div class="ai-header">
-            <h4>🧹 Groq AI Text Cleanup Analysis</h4>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">🔍 Issues & Recommendations</h5>
-            <div class="cleanup-analysis-box">
-              ${this.formatAIResponse(cleanupAnalysis)}
-            </div>
-          </div>
-          
-          <div class="ai-section">
-            <h5 class="section-title">✨ Cleanup Checklist</h5>
-            <div class="cleanup-checklist">
-              <div class="cleanup-item">
-                <div class="cleanup-icon">🔲</div>
-                <div class="cleanup-content">Remove trailing whitespace at line ends</div>
-              </div>
-              <div class="cleanup-item">
-                <div class="cleanup-icon">📏</div>
-                <div class="cleanup-content">Standardize line break usage</div>
-              </div>
-              <div class="cleanup-item">
-                <div class="cleanup-icon">📝</div>
-                <div class="cleanup-content">Fix inconsistent punctuation</div>
-              </div>
-              <div class="cleanup-item">
-                <div class="cleanup-icon">💬</div>
-                <div class="cleanup-content">Normalize quotation marks</div>
-              </div>
-              <div class="cleanup-item">
-                <div class="cleanup-icon">🧽</div>
-                <div class="cleanup-content">Remove unnecessary special characters</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
+      // Create clean cleanup analysis like ChatGPT with bold and emojis
+      const cleanupResult = `🧹 **Text Cleanup Analysis**
+
+${cleanupAnalysis}
+
+✨ **Cleanup Checklist:**
+• 🔲 Remove **trailing whitespace** at line ends
+• 📏 Standardize **line break usage** throughout
+• 📝 Fix **inconsistent punctuation** patterns
+• 💬 Normalize **quotation marks** (straight vs. curly)
+• 🧽 Remove **unnecessary special characters**
+• 📐 Ensure **consistent spacing** around punctuation
+• 🔍 Check for **double spaces** and extra line breaks
+
+💡 These improvements will make your text **more professional** and **easier to read**.`;
+
+      return cleanupResult;
     } catch (error) {
       console.error('❌ Groq API failed for cleanup analysis:', error);
       throw error;
@@ -504,87 +406,14 @@ Look for: spacing issues, punctuation problems, inconsistent formatting, redunda
     };
   }
 
-  // Format AI response - bullets for analysis, paragraphs for summaries
-  formatAIResponse(text, type = 'default') {
+  // Simple text cleaning for ChatGPT-style responses
+  cleanAIText(text) {
     if (!text) return '';
     
-    // Clean up the text
-    let cleaned = text
-      // Remove **text** and replace with <strong>text</strong>
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Remove single asterisks
-      .replace(/\*(.*?)\*/g, '$1')
-      // Clean up multiple spaces
-      .replace(/\s+/g, ' ')
-      // Trim whitespace
+    return text
+      .replace(/\*+/g, '') // Remove asterisks
+      .replace(/\s+/g, ' ') // Clean up spaces
       .trim();
-    
-    // For summaries, use paragraph format for better flow
-    if (type === 'summary') {
-      // Split into logical paragraphs
-      const paragraphs = cleaned
-        .split(/\n\s*\n+/)
-        .map(p => p.trim())
-        .filter(p => p.length > 20); // Filter out very short fragments
-      
-      // If we have multiple paragraphs, format them nicely
-      if (paragraphs.length > 1) {
-        return paragraphs.map(paragraph => `<p style="margin-bottom: 16px; line-height: 1.6;">${paragraph}</p>`).join('');
-      }
-      // Single paragraph - split by sentences for better readability
-      else {
-        const sentences = cleaned.split(/(?<=\.)\s+(?=[A-Z])/).filter(s => s.trim().length > 10);
-        if (sentences.length > 2) {
-          // Group sentences into logical paragraphs (2-3 sentences each)
-          const groupedParagraphs = [];
-          for (let i = 0; i < sentences.length; i += 2) {
-            const group = sentences.slice(i, i + 2).join(' ').trim();
-            if (group) groupedParagraphs.push(group);
-          }
-          return groupedParagraphs.map(paragraph => `<p style="margin-bottom: 16px; line-height: 1.6;">${paragraph}</p>`).join('');
-        }
-        return `<p style="line-height: 1.6;">${cleaned}</p>`;
-      }
-    }
-    
-    // For other types (explain, rewrite, tone, cleanup), use bullet format
-    let points = [];
-    
-    // First try to split by numbered items (1., 2., 3., etc.)
-    if (cleaned.match(/\d+\.\s/)) {
-      points = cleaned.split(/(?=\d+\.\s)/).filter(p => p.trim());
-    }
-    // If no numbered items, split by periods followed by capital letters or new sections
-    else if (cleaned.match(/\.\s+[A-Z]/)) {
-      points = cleaned.split(/\.\s+(?=[A-Z])/).map(p => p.trim() + (p.endsWith('.') ? '' : '.'));
-    }
-    // If no clear structure, split by double line breaks or long sentences
-    else {
-      points = cleaned.split(/\n\s*\n+|(?<=\.)\s+(?=[A-Z][^.]*:)/).filter(p => p.trim());
-    }
-    
-    // Clean up and format each point
-    const formattedPoints = points
-      .map(point => point.trim())
-      .filter(point => point.length > 10) // Filter out very short fragments
-      .map(point => {
-        // Remove leading numbers if present
-        point = point.replace(/^\d+\.\s*/, '');
-        // Ensure proper sentence ending
-        if (!point.endsWith('.') && !point.endsWith('!') && !point.endsWith('?')) {
-          point += '.';
-        }
-        return point;
-      });
-    
-    // If we have multiple points, format as bulleted list
-    if (formattedPoints.length > 1) {
-      return `<ul style="line-height: 1.6; margin: 12px 0;">${formattedPoints.map(point => `<li style="margin-bottom: 8px;">${point}</li>`).join('')}</ul>`;
-    }
-    // If only one point or no clear structure, return as paragraph
-    else {
-      return `<p style="line-height: 1.6;">${cleaned}</p>`;
-    }
   }
 
   // Format the response into the expected structure

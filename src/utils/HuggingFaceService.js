@@ -271,6 +271,14 @@ Analysis:`;
         cleanedInsight = aiInsight.replace(prompt, '').trim();
       }
       
+      // Remove asterisks and other markdown artifacts
+      cleanedInsight = cleanedInsight
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/\*+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
       // If the response is too short or empty, provide a basic analysis
       if (!cleanedInsight || cleanedInsight.length < 10) {
         cleanedInsight = "The AI analysis shows differences in content structure and word usage between the two text versions.";
@@ -332,6 +340,14 @@ Suggestions:`;
         cleanedSuggestions = suggestions.replace(prompt, '').trim();
       }
       
+      // Remove asterisks and other markdown artifacts
+      cleanedSuggestions = cleanedSuggestions
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/\*+/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      
       // If the response is too short or empty, provide basic suggestions
       if (!cleanedSuggestions || cleanedSuggestions.length < 10) {
         cleanedSuggestions = "Consider improving sentence structure, using more precise vocabulary, and ensuring clear transitions between ideas.";
@@ -378,14 +394,72 @@ Suggestions:`;
       
       return `
         <div class="ai-summary">
-          <h4>📝 AI-Generated Summary</h4>
-          <div class="summary-content">
-            <p>${summary}</p>
+          <div class="ai-header">
+            <h4>📝 Hugging Face AI Summary</h4>
           </div>
           
-          <h4>📊 Text Overview</h4>
-          <p>Combined text length: ${combinedText.length} characters</p>
-          <p>Analysis includes both original and changed versions for comprehensive understanding.</p>
+          <div class="ai-section">
+            <h5 class="section-title">🎯 Executive Summary</h5>
+            <div class="summary-box executive-summary">
+              <p>${summary}</p>
+            </div>
+          </div>
+          
+          <div class="ai-section">
+            <h5 class="section-title">📊 Document Analysis</h5>
+            <div class="summary-cards-vertical">
+              <div class="summary-card">
+                <div class="summary-card-icon">📏</div>
+                <div class="summary-card-content">
+                  <div class="summary-card-title">Content Volume</div>
+                  <div class="summary-card-value">${combinedText.length} characters</div>
+                  <div class="summary-card-detail">Combined text from both versions</div>
+                </div>
+              </div>
+              
+              <div class="summary-card">
+                <div class="summary-card-icon">🤖</div>
+                <div class="summary-card-content">
+                  <div class="summary-card-title">AI Model</div>
+                  <div class="summary-card-value">Hugging Face</div>
+                  <div class="summary-card-detail">Advanced summarization model</div>
+                </div>
+              </div>
+              
+              <div class="summary-card">
+                <div class="summary-card-icon">🔍</div>
+                <div class="summary-card-content">
+                  <div class="summary-card-title">Analysis Scope</div>
+                  <div class="summary-card-value">Comprehensive</div>
+                  <div class="summary-card-detail">Both original and changed versions</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="ai-section">
+            <h5 class="section-title">📋 Summary Insights</h5>
+            <div class="summary-tips-vertical">
+              <div class="summary-tip-card">
+                <div class="tip-icon">🎯</div>
+                <div class="tip-content">
+                  <strong>Key Points Focus:</strong> This AI-generated summary captures the most important information from both text versions.
+                </div>
+              </div>
+              <div class="summary-tip-card">
+                <div class="tip-icon">🔄</div>
+                <div class="tip-content">
+                  <strong>Comprehensive Analysis:</strong> The summary includes context from both original and changed versions for complete understanding.
+                </div>
+              </div>
+              <div class="summary-tip-card">
+                <div class="tip-icon">⚡</div>
+                <div class="tip-content">
+                  <strong>AI-Powered:</strong> Generated using advanced Hugging Face language models for accurate content distillation.
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       `;
     } catch (error) {
@@ -404,32 +478,62 @@ Suggestions:`;
 
       return `
         <div class="ai-tone">
-          <h4>🎭 AI Tone Analysis</h4>
+          <div class="ai-header">
+            <h4>🎭 Hugging Face AI Tone Analysis</h4>
+          </div>
           
-          <div class="tone-section">
-            <h5>📊 Original Text Sentiment</h5>
-            <div class="sentiment-result">
-              <strong>Primary Sentiment:</strong> ${originalSentiment.label} (${(originalSentiment.score * 100).toFixed(1)}% confidence)
+          <div class="ai-section">
+            <h5 class="section-title">📊 Sentiment Comparison</h5>
+            <div class="tone-comparison">
+              <div class="tone-card">
+                <div class="tone-card-header">📝 Original Text</div>
+                <div class="tone-indicators">
+                  <span class="tone-tag sentiment">${originalSentiment.label}</span>
+                  <span class="tone-tag confidence">${(originalSentiment.score * 100).toFixed(1)}% confidence</span>
+                </div>
+              </div>
+              ${changedText ? `
+              <div class="tone-card">
+                <div class="tone-card-header">✏️ Changed Text</div>
+                <div class="tone-indicators">
+                  <span class="tone-tag sentiment">${changedSentiment.label}</span>
+                  <span class="tone-tag confidence">${(changedSentiment.score * 100).toFixed(1)}% confidence</span>
+                </div>
+              </div>
+              ` : ''}
             </div>
           </div>
           
-          ${changedText ? `
-          <div class="tone-section">
-            <h5>📊 Changed Text Sentiment</h5>
-            <div class="sentiment-result">
-              <strong>Primary Sentiment:</strong> ${changedSentiment.label} (${(changedSentiment.score * 100).toFixed(1)}% confidence)
+          <div class="ai-section">
+            <h5 class="section-title">🔍 Tone Analysis Insights</h5>
+            <div class="tone-tips-vertical">
+              <div class="tip-card">
+                <div class="tip-icon">🤖</div>
+                <div class="tip-content">
+                  <strong>AI-Powered Analysis:</strong> Sentiment analysis powered by advanced Hugging Face language models for accurate tone detection.
+                </div>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">👥</div>
+                <div class="tip-content">
+                  <strong>Audience Consideration:</strong> Consider your target audience when choosing tone - formal vs. casual, positive vs. neutral.
+                </div>
+              </div>
+              <div class="tip-card">
+                <div class="tip-icon">🔄</div>
+                <div class="tip-content">
+                  <strong>Consistency Check:</strong> Maintain consistent tone throughout your document to avoid confusing readers.
+                </div>
+              </div>
+              ${originalSentiment.label !== changedSentiment.label ? `
+              <div class="tip-card">
+                <div class="tip-icon">⚠️</div>
+                <div class="tip-content">
+                  <strong>Tone Shift Alert:</strong> A tone shift was detected between versions. Consider if this change aligns with your intent.
+                </div>
+              </div>
+              ` : ''}
             </div>
-          </div>
-          ` : ''}
-          
-          <div class="tone-section">
-            <h5>💡 Tone Insights</h5>
-            <ul>
-              <li>Sentiment analysis powered by Hugging Face AI models</li>
-              <li>Consider your target audience when choosing tone</li>
-              <li>Maintain consistency throughout your document</li>
-              ${originalSentiment.label !== changedSentiment.label ? '<li>⚠️ Tone shift detected between versions</li>' : ''}
-            </ul>
           </div>
         </div>
       `;
