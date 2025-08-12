@@ -11,6 +11,10 @@ const Legend = () => {
         <span className="legend-color removed"></span>
         <span>Removed</span>
       </div>
+      <div className="legend-item">
+        <span className="legend-color changes"></span>
+        <span>Total Changes</span>
+      </div>
     </div>
   );
 };
