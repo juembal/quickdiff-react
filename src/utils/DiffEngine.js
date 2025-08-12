@@ -87,35 +87,56 @@ export class DiffEngine {
     const originalWords = this.splitIntoWords(originalText);
     const changedWords = this.splitIntoWords(changedText);
     
-    const wordDiff = this.computeWordDiff(originalWords, changedWords);
+    const wordDiff = this.computeImprovedWordDiff(originalWords, changedWords);
     
     const stats = {
       wordsAdded: 0,
-      wordsRemoved: 0
+      wordsRemoved: 0,
+      wordsModified: 0,
+      totalChanges: 0
     };
     
     let originalHtml = '';
     let changedHtml = '';
     
-    // Process original words
+    // Process original words with better counting
     wordDiff.original.forEach(item => {
       if (item.type === 'removed') {
-        if (item.content.trim()) stats.wordsRemoved++;
+        // Only count actual words, not whitespace
+        if (item.content.trim() && /\S/.test(item.content)) {
+          stats.wordsRemoved++;
+        }
         originalHtml += `<span class="word-removed">${this.escapeHtml(item.content)}</span>`;
+      } else if (item.type === 'modified') {
+        if (item.content.trim() && /\S/.test(item.content)) {
+          stats.wordsModified++;
+        }
+        originalHtml += `<span class="word-modified">${this.escapeHtml(item.content)}</span>`;
       } else {
         originalHtml += this.escapeHtml(item.content);
       }
     });
     
-    // Process changed words
+    // Process changed words with better counting
     wordDiff.changed.forEach(item => {
       if (item.type === 'added') {
-        if (item.content.trim()) stats.wordsAdded++;
+        // Only count actual words, not whitespace
+        if (item.content.trim() && /\S/.test(item.content)) {
+          stats.wordsAdded++;
+        }
         changedHtml += `<span class="word-added">${this.escapeHtml(item.content)}</span>`;
+      } else if (item.type === 'modified') {
+        if (item.content.trim() && /\S/.test(item.content)) {
+          // Don't double count modified words
+        }
+        changedHtml += `<span class="word-modified">${this.escapeHtml(item.content)}</span>`;
       } else {
         changedHtml += this.escapeHtml(item.content);
       }
     });
+    
+    // Calculate total changes more accurately
+    stats.totalChanges = stats.wordsAdded + stats.wordsRemoved + stats.wordsModified;
     
     return {
       originalLines: [{ content: originalHtml, type: '', lineNumber: 1 }],
@@ -125,33 +146,46 @@ export class DiffEngine {
   }
 
   performCharComparison(originalText, changedText) {
-    const charDiff = this.computeCharDiff(originalText, changedText);
+    const charDiff = this.computeImprovedCharDiff(originalText, changedText);
     
     const stats = {
       charactersAdded: 0,
-      charactersRemoved: 0
+      charactersRemoved: 0,
+      charactersModified: 0,
+      totalChanges: 0
     };
     
     let originalHtml = '';
     let changedHtml = '';
     
+    // Process original characters with grouping for better visualization
     charDiff.original.forEach(item => {
       if (item.type === 'removed') {
         stats.charactersRemoved++;
         originalHtml += `<span class="char-removed">${this.escapeHtml(item.content)}</span>`;
+      } else if (item.type === 'modified') {
+        stats.charactersModified++;
+        originalHtml += `<span class="char-modified">${this.escapeHtml(item.content)}</span>`;
       } else {
         originalHtml += this.escapeHtml(item.content);
       }
     });
     
+    // Process changed characters with grouping
     charDiff.changed.forEach(item => {
       if (item.type === 'added') {
         stats.charactersAdded++;
         changedHtml += `<span class="char-added">${this.escapeHtml(item.content)}</span>`;
+      } else if (item.type === 'modified') {
+        // Don't double count modified characters
+        changedHtml += `<span class="char-modified">${this.escapeHtml(item.content)}</span>`;
       } else {
         changedHtml += this.escapeHtml(item.content);
       }
     });
+    
+    // Calculate total changes
+    stats.totalChanges = stats.charactersAdded + stats.charactersRemoved + stats.charactersModified;
     
     return {
       originalLines: [{ content: originalHtml, type: '', lineNumber: 1 }],
@@ -216,6 +250,139 @@ export class DiffEngine {
     return text.match(regex) || [];
   }
 
+  computeImprovedWordDiff(originalWords, changedWords) {
+    // Use Myers' algorithm for better diff performance
+    const result = this.myersWordDiff(originalWords, changedWords);
+    
+    // Post-process to detect word modifications (similar words that changed)
+    return this.detectWordModifications(result);
+  }
+
+  myersWordDiff(originalWords, changedWords) {
+    const m = originalWords.length;
+    const n = changedWords.length;
+    const max = m + n;
+    
+    const v = Array(2 * max + 1).fill(0);
+    const trace = [];
+    
+    for (let d = 0; d <= max; d++) {
+      trace.push([...v]);
+      
+      for (let k = -d; k <= d; k += 2) {
+        let x;
+        if (k === -d || (k !== d && v[k - 1 + max] < v[k + 1 + max])) {
+          x = v[k + 1 + max];
+        } else {
+          x = v[k - 1 + max] + 1;
+        }
+        
+        let y = x - k;
+        
+        while (x < m && y < n && originalWords[x] === changedWords[y]) {
+          x++;
+          y++;
+        }
+        
+        v[k + max] = x;
+        
+        if (x >= m && y >= n) {
+          return this.buildWordPath(originalWords, changedWords, trace, d);
+        }
+      }
+    }
+    
+    // Fallback to simple LCS if Myers fails
+    return this.computeWordDiff(originalWords, changedWords);
+  }
+
+  buildWordPath(originalWords, changedWords, trace, d) {
+    const result = { original: [], changed: [] };
+    let x = originalWords.length;
+    let y = changedWords.length;
+    
+    for (let depth = d; depth > 0; depth--) {
+      const v = trace[depth];
+      const k = x - y;
+      const max = originalWords.length + changedWords.length;
+      
+      let prevK;
+      if (k === -depth || (k !== depth && v[k - 1 + max] < v[k + 1 + max])) {
+        prevK = k + 1;
+      } else {
+        prevK = k - 1;
+      }
+      
+      const prevX = v[prevK + max];
+      const prevY = prevX - prevK;
+      
+      while (x > prevX && y > prevY) {
+        result.original.unshift({ content: originalWords[x - 1], type: 'unchanged' });
+        result.changed.unshift({ content: changedWords[y - 1], type: 'unchanged' });
+        x--;
+        y--;
+      }
+      
+      if (depth > 0) {
+        if (x > prevX) {
+          result.original.unshift({ content: originalWords[x - 1], type: 'removed' });
+          x--;
+        } else {
+          result.changed.unshift({ content: changedWords[y - 1], type: 'added' });
+          y--;
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  detectWordModifications(diffResult) {
+    // Look for patterns where a word was removed and another added nearby
+    const original = [...diffResult.original];
+    const changed = [...diffResult.changed];
+    
+    // Simple heuristic: if words are similar (edit distance < 3), mark as modified
+    for (let i = 0; i < original.length; i++) {
+      if (original[i].type === 'removed') {
+        const removedWord = original[i].content.trim();
+        
+        // Look for similar added words
+        for (let j = 0; j < changed.length; j++) {
+          if (changed[j].type === 'added') {
+            const addedWord = changed[j].content.trim();
+            
+            if (removedWord && addedWord && this.areWordsSimilar(removedWord, addedWord)) {
+              original[i].type = 'modified';
+              changed[j].type = 'modified';
+              break;
+            }
+          }
+        }
+      }
+    }
+    
+    return { original, changed };
+  }
+
+  areWordsSimilar(word1, word2) {
+    // Simple similarity check - could be enhanced with Levenshtein distance
+    if (word1.length === 0 || word2.length === 0) return false;
+    if (Math.abs(word1.length - word2.length) > 3) return false;
+    
+    // Check if they share common prefix/suffix
+    const minLen = Math.min(word1.length, word2.length);
+    let commonChars = 0;
+    
+    for (let i = 0; i < minLen; i++) {
+      if (word1[i].toLowerCase() === word2[i].toLowerCase()) {
+        commonChars++;
+      }
+    }
+    
+    return commonChars / minLen > 0.6; // 60% similarity threshold
+  }
+
   computeWordDiff(originalWords, changedWords) {
     const m = originalWords.length;
     const n = changedWords.length;
@@ -250,6 +417,134 @@ export class DiffEngine {
     }
     
     return result;
+  }
+
+  computeImprovedCharDiff(originalText, changedText) {
+    // Use character-level Myers algorithm with grouping for better visualization
+    const result = this.myersCharDiff(originalText, changedText);
+    
+    // Group consecutive changes for better readability
+    return this.groupCharacterChanges(result);
+  }
+
+  myersCharDiff(originalText, changedText) {
+    const originalChars = Array.from(originalText);
+    const changedChars = Array.from(changedText);
+    
+    const m = originalChars.length;
+    const n = changedChars.length;
+    const max = m + n;
+    
+    if (max === 0) {
+      return { original: [], changed: [] };
+    }
+    
+    const v = Array(2 * max + 1).fill(0);
+    const trace = [];
+    
+    for (let d = 0; d <= max; d++) {
+      trace.push([...v]);
+      
+      for (let k = -d; k <= d; k += 2) {
+        let x;
+        if (k === -d || (k !== d && v[k - 1 + max] < v[k + 1 + max])) {
+          x = v[k + 1 + max];
+        } else {
+          x = v[k - 1 + max] + 1;
+        }
+        
+        let y = x - k;
+        
+        while (x < m && y < n && originalChars[x] === changedChars[y]) {
+          x++;
+          y++;
+        }
+        
+        v[k + max] = x;
+        
+        if (x >= m && y >= n) {
+          return this.buildCharPath(originalChars, changedChars, trace, d);
+        }
+      }
+    }
+    
+    // Fallback to simple character diff
+    return this.computeCharDiff(originalText, changedText);
+  }
+
+  buildCharPath(originalChars, changedChars, trace, d) {
+    const result = { original: [], changed: [] };
+    let x = originalChars.length;
+    let y = changedChars.length;
+    
+    for (let depth = d; depth > 0; depth--) {
+      const v = trace[depth];
+      const k = x - y;
+      const max = originalChars.length + changedChars.length;
+      
+      let prevK;
+      if (k === -depth || (k !== depth && v[k - 1 + max] < v[k + 1 + max])) {
+        prevK = k + 1;
+      } else {
+        prevK = k - 1;
+      }
+      
+      const prevX = v[prevK + max];
+      const prevY = prevX - prevK;
+      
+      while (x > prevX && y > prevY) {
+        result.original.unshift({ content: originalChars[x - 1], type: 'unchanged' });
+        result.changed.unshift({ content: changedChars[y - 1], type: 'unchanged' });
+        x--;
+        y--;
+      }
+      
+      if (depth > 0) {
+        if (x > prevX) {
+          result.original.unshift({ content: originalChars[x - 1], type: 'removed' });
+          x--;
+        } else {
+          result.changed.unshift({ content: changedChars[y - 1], type: 'added' });
+          y--;
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  groupCharacterChanges(diffResult) {
+    // Group consecutive character changes for better visualization
+    const groupedOriginal = this.groupConsecutiveChanges(diffResult.original);
+    const groupedChanged = this.groupConsecutiveChanges(diffResult.changed);
+    
+    return { original: groupedOriginal, changed: groupedChanged };
+  }
+
+  groupConsecutiveChanges(items) {
+    if (!items || items.length === 0) return [];
+    
+    const grouped = [];
+    let currentGroup = null;
+    
+    for (const item of items) {
+      if (currentGroup && currentGroup.type === item.type && item.type !== 'unchanged') {
+        // Continue the current group
+        currentGroup.content += item.content;
+      } else {
+        // Start a new group
+        if (currentGroup) {
+          grouped.push(currentGroup);
+        }
+        currentGroup = { ...item };
+      }
+    }
+    
+    if (currentGroup) {
+      grouped.push(currentGroup);
+    }
+    
+    return grouped;
   }
 
   computeCharDiff(originalText, changedText) {

@@ -31,7 +31,7 @@ class ReactUserGuide {
             {
                 target: '.input-section',
                 title: 'Text Input Areas',
-                content: '📝 Original Text (left) - Your base text for comparison<br>📝 Changed Text (right) - Modified version to compare<br>📁 Drag & Drop - Supports .txt, .md, .json, .html, .js, .py, .css files<br>💡 Tip: Files auto-detect programming language!',
+                content: '📝 Original Text (left) - Your base text for comparison<br>📝 Changed Text (right) - Modified version to compare<br>📁 Drag & Drop - Supports .txt, .md, .json, .html, .js, .py, .css, .pdf files<br>💡 Tip: Files auto-detect programming language!',
                 position: 'top'
             },
             {
@@ -74,11 +74,22 @@ class ReactUserGuide {
     }
     
     waitForElements(callback) {
+        let attempts = 0;
+        const maxAttempts = 50; // 10 seconds total (50 * 200ms)
+        
         const checkElements = () => {
+            attempts++;
             const headerControls = document.querySelector('.header-controls');
+            
             if (headerControls) {
+                console.log(`✅ Header controls found after ${attempts} attempts`);
+                callback();
+            } else if (attempts >= maxAttempts) {
+                console.error('❌ Header controls not found after maximum attempts');
+                // Try to initialize anyway
                 callback();
             } else {
+                console.log(`⏳ Waiting for header controls... (attempt ${attempts}/${maxAttempts})`);
                 setTimeout(checkElements, 200);
             }
         };
@@ -99,15 +110,36 @@ class ReactUserGuide {
         const button = document.createElement('button');
         button.id = 'quick-guide-btn';
         button.innerHTML = '❓';
-        button.title = 'Quick Guide';
+        button.title = 'Quick Guide (F1)';
         button.className = 'btn btn-secondary btn-icon-only';
-        // Copy exact styles from contrast/theme buttons - no custom overrides
         
+        // Ensure button is visible and styled properly
+        button.style.cssText = `
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 1 !important;
+        `;
         
         // Add to header controls
         const headerControls = document.querySelector('.header-controls');
         if (headerControls) {
             headerControls.appendChild(button);
+            console.log('✅ Quick Guide button added to header controls');
+        } else {
+            console.error('❌ Header controls not found - retrying...');
+            // Retry after a short delay
+            setTimeout(() => {
+                const retryHeaderControls = document.querySelector('.header-controls');
+                if (retryHeaderControls) {
+                    retryHeaderControls.appendChild(button);
+                    console.log('✅ Quick Guide button added to header controls (retry)');
+                } else {
+                    console.error('❌ Header controls still not found after retry');
+                }
+            }, 500);
         }
         
         // Add dynamic CSS for theme support
@@ -693,6 +725,33 @@ class ReactUserGuide {
             });
         }
         
+        // Keyboard shortcuts for opening guide
+        this.keydownHandler = (e) => {
+            // F1 key (keyCode 112) - traditional help key
+            if (e.key === 'F1' || e.keyCode === 112) {
+                e.preventDefault();
+                this.showQuickGuide();
+                return;
+            }
+            
+            // Ctrl+? or Ctrl+/ - more accessible alternative
+            if ((e.ctrlKey || e.metaKey) && (e.key === '?' || e.key === '/')) {
+                e.preventDefault();
+                this.showQuickGuide();
+                return;
+            }
+            
+            // Escape key to close guide
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('quick-guide-modal');
+                if (modal && modal.style.display === 'flex') {
+                    e.preventDefault();
+                    this.hideQuickGuide();
+                }
+            }
+        };
+        
+        document.addEventListener('keydown', this.keydownHandler);
         
         // Close modal when clicking outside
         const modal = document.getElementById('quick-guide-modal');
@@ -1078,6 +1137,10 @@ class ReactUserGuide {
             window.removeEventListener('scroll', this.scrollListener);
         }
         
+        if (this.keydownHandler) {
+            document.removeEventListener('keydown', this.keydownHandler);
+        }
+        
         // Remove DOM elements
         const overlay = document.getElementById('tour-overlay');
         const modal = document.getElementById('quick-guide-modal');
@@ -1088,6 +1151,9 @@ class ReactUserGuide {
         if (modal) modal.remove();
         if (button) button.remove();
         if (styles) styles.remove();
+        
+        // Reset global flag
+        window.userGuideInitialized = false;
     }
 }
 
@@ -1099,12 +1165,15 @@ if (typeof window !== 'undefined') {
     window.ReactUserGuide = ReactUserGuide;
 }
 
-// Auto-initialize for React
+// Auto-initialize for React - only if not already initialized by React component
 if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', () => {
-        if (!window.userGuideInitialized) {
-            new ReactUserGuide();
-            window.userGuideInitialized = true;
-        }
+        // Wait a bit to see if React component initializes it first
+        setTimeout(() => {
+            if (!window.userGuideInitialized) {
+                new ReactUserGuide();
+                window.userGuideInitialized = true;
+            }
+        }, 100);
     });
 }
