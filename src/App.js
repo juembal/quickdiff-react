@@ -407,8 +407,7 @@ const handleFileLoad = async (file, target) => {
   }
   
   if (file.size === 0) {
-    showNotification(`❌ File is empty: ${file.name}`);
-    alert(`The file appears to be empty: ${file.name}`);
+    showNotification(`❌ File is empty: ${file.name}`, 'error', 5000);
     return;
   }
   
@@ -419,8 +418,7 @@ const handleFileLoad = async (file, target) => {
                    file.name.toLowerCase().endsWith(ext));
   
   if (!isPDF && !isText) {
-    showNotification('❌ Unsupported file type');
-    alert(`Unsupported file type: ${file.name}\n\nSupported: .txt, .md, .js, .html, .css, .json, .xml, .csv, .pdf`);
+    showNotification(`❌ Unsupported file type: ${file.name}`, 'error', 5000);
     return;
   }
   
@@ -441,14 +439,8 @@ const handleFileLoad = async (file, target) => {
         showNotification(`✅ PDF extracted successfully: ${file.name}`);
         console.log(`✅ PDF extraction completed: ${result.message}`);
       } else {
-        showNotification(`❌ PDF extraction failed: ${result.error}`);
+        showNotification(`❌ PDF extraction failed: ${result.error}`, 'error', 6000);
         console.error(`❌ PDF extraction error:`, result.error);
-        
-        // Show alert for PDF extraction failures
-        setTimeout(() => {
-          alert(`Failed to extract text from PDF: ${file.name}\n\nError: ${result.error}\n\nPlease try a different PDF file.`);
-        }, 100);
-        
         throw new Error(result.error);
       }
     } else {
@@ -473,13 +465,7 @@ const handleFileLoad = async (file, target) => {
         showNotification(`✅ Text file loaded: ${file.name}`);
       } catch (readError) {
         console.error('Text file reading error:', readError);
-        showNotification(`❌ Failed to read file: ${readError.message}`);
-        
-        // Show alert for text file reading failures
-        setTimeout(() => {
-          alert(`Failed to read text file: ${file.name}\n\nError: ${readError.message}\n\nPlease check the file format and try again.`);
-        }, 100);
-        
+        showNotification(`❌ Failed to read file: ${readError.message}`, 'error', 6000);
         throw readError;
       }
     }
@@ -487,13 +473,8 @@ const handleFileLoad = async (file, target) => {
     // Validate extracted content
     if (!content || content.trim().length === 0) {
       const emptyMessage = `File appears to be empty or contains no readable text: ${file.name}`;
-      showNotification(`⚠️ ${emptyMessage}`);
+      showNotification(`⚠️ ${emptyMessage}`, 'warning', 6000);
       console.log(`⚠️ Empty content warning: ${emptyMessage}`);
-      
-      setTimeout(() => {
-        alert(`${emptyMessage}\n\nPlease select a file with text content.`);
-      }, 100);
-      
       throw new Error('Empty file content');
     }
     
@@ -547,13 +528,7 @@ const handleFileLoad = async (file, target) => {
   } catch (error) {
     console.error('File processing error:', error);
     const errorMessage = `Failed to process file: ${file.name}`;
-    showNotification(`❌ ${errorMessage}`);
-    
-    // Show detailed error in alert
-    setTimeout(() => {
-      alert(`${errorMessage}\n\nError Details: ${error.message}\n\nPlease try a different file or contact support if the issue persists.`);
-    }, 100);
-    
+    showNotification(`❌ ${errorMessage} - ${error.message}`, 'error', 8000);
     throw error;
   }
 };
