@@ -2218,6 +2218,7 @@ body.focus-mode .diff-line.modified {
   white-space: pre-wrap;
   line-height: 1.6;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-size: 1.1em;
 }
 
 .ai-content-exact .ai-bullet-point {

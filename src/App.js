@@ -349,17 +349,19 @@ function QuickDiffApp() {
         setShowAiResults(true);
         showNotification('✅ Groq AI analysis completed');
         
-        // Auto-scroll to AI results
+        // Auto-scroll to the latest AI result card
         setTimeout(() => {
-          const aiResultsElement = document.querySelector('.ai-results-section');
-          if (aiResultsElement) {
-            aiResultsElement.scrollIntoView({ 
+          const aiCards = document.querySelectorAll('.ai-analysis-card');
+          if (aiCards.length > 0) {
+            // Scroll to the last (newest) AI card
+            const latestCard = aiCards[aiCards.length - 1];
+            latestCard.scrollIntoView({ 
               behavior: 'smooth', 
               block: 'start',
               inline: 'nearest'
             });
           }
-        }, 100);
+        }, 200);
         
       } else {
         // No API configured
