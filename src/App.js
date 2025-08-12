@@ -166,21 +166,13 @@ function QuickDiffApp() {
         if (settings.diffMode === 'word') {
           const wordsAdded = result.stats.wordsAdded || 0;
           const wordsRemoved = result.stats.wordsRemoved || 0;
-          const wordsModified = result.stats.wordsModified || 0;
           
           // Use totalChanges if available, otherwise calculate
-          changeCount = result.stats.totalChanges || (wordsAdded + wordsRemoved + wordsModified);
+          changeCount = result.stats.totalChanges || (wordsAdded + wordsRemoved);
           
-          if (wordsModified > 0) {
-            if (wordsAdded > 0 || wordsRemoved > 0) {
-              changeDescription = `${wordsModified} words modified, ${wordsRemoved} removed, ${wordsAdded} added`;
-            } else {
-              changeDescription = `${wordsModified} words modified`;
-            }
-            changeType = 'modified';
-          } else if (wordsAdded > 0 && wordsRemoved > 0) {
+          if (wordsAdded > 0 && wordsRemoved > 0) {
             changeDescription = `${wordsRemoved} words removed, ${wordsAdded} words added`;
-            changeType = 'modified';
+            changeType = 'changed';
           } else if (wordsAdded > 0) {
             changeDescription = `${wordsAdded} words added`;
             changeType = 'added';
@@ -191,21 +183,13 @@ function QuickDiffApp() {
         } else if (settings.diffMode === 'char') {
           const charsAdded = result.stats.charactersAdded || 0;
           const charsRemoved = result.stats.charactersRemoved || 0;
-          const charsModified = result.stats.charactersModified || 0;
           
           // Use totalChanges if available, otherwise calculate
-          changeCount = result.stats.totalChanges || (charsAdded + charsRemoved + charsModified);
+          changeCount = result.stats.totalChanges || (charsAdded + charsRemoved);
           
-          if (charsModified > 0) {
-            if (charsAdded > 0 || charsRemoved > 0) {
-              changeDescription = `${charsModified} characters modified, ${charsRemoved} removed, ${charsAdded} added`;
-            } else {
-              changeDescription = `${charsModified} characters modified`;
-            }
-            changeType = 'modified';
-          } else if (charsAdded > 0 && charsRemoved > 0) {
+          if (charsAdded > 0 && charsRemoved > 0) {
             changeDescription = `${charsRemoved} characters removed, ${charsAdded} characters added`;
-            changeType = 'modified';
+            changeType = 'changed';
           } else if (charsAdded > 0) {
             changeDescription = `${charsAdded} characters added`;
             changeType = 'added';
@@ -286,18 +270,12 @@ function QuickDiffApp() {
           if (settings.diffMode === 'word') {
             // Use totalChanges if available for more accurate count
             actualChangeCount = result.stats.totalChanges || 
-              ((result.stats.wordsAdded || 0) + (result.stats.wordsRemoved || 0) + (result.stats.wordsModified || 0));
+              ((result.stats.wordsAdded || 0) + (result.stats.wordsRemoved || 0));
             
             const added = result.stats.wordsAdded || 0;
             const removed = result.stats.wordsRemoved || 0;
-            const modified = result.stats.wordsModified || 0;
             
-            if (modified > 0) {
-              changeDetails = `${modified} modified`;
-              if (added > 0 || removed > 0) {
-                changeDetails += `, ${added} added, ${removed} removed`;
-              }
-            } else if (added > 0 && removed > 0) {
+            if (added > 0 && removed > 0) {
               changeDetails = `${added} added, ${removed} removed`;
             } else if (added > 0) {
               changeDetails = `${added} added`;
@@ -307,18 +285,12 @@ function QuickDiffApp() {
           } else if (settings.diffMode === 'char') {
             // Use totalChanges if available for more accurate count
             actualChangeCount = result.stats.totalChanges || 
-              ((result.stats.charactersAdded || 0) + (result.stats.charactersRemoved || 0) + (result.stats.charactersModified || 0));
+              ((result.stats.charactersAdded || 0) + (result.stats.charactersRemoved || 0));
             
             const added = result.stats.charactersAdded || 0;
             const removed = result.stats.charactersRemoved || 0;
-            const modified = result.stats.charactersModified || 0;
             
-            if (modified > 0) {
-              changeDetails = `${modified} modified`;
-              if (added > 0 || removed > 0) {
-                changeDetails += `, ${added} added, ${removed} removed`;
-              }
-            } else if (added > 0 && removed > 0) {
+            if (added > 0 && removed > 0) {
               changeDetails = `${added} added, ${removed} removed`;
             } else if (added > 0) {
               changeDetails = `${added} added`;

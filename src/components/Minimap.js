@@ -30,7 +30,6 @@ const Minimap = ({ changes, currentChangeIndex, onChangeClick }) => {
             
             let backgroundColor = '#28a745'; // added
             if (change.type === 'removed') backgroundColor = '#dc3545';
-            if (change.type === 'modified') backgroundColor = '#6f42c1';
             
             return (
               <div

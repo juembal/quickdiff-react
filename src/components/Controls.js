@@ -12,7 +12,6 @@ const Controls = ({
   onAIAnalysis,
   hasResults,
   isGeneratingAI,
-  hfConfigured,
   groqConfigured
 }) => {
   return (
@@ -112,9 +111,7 @@ const Controls = ({
           </div>
           <div className="ai-status">
             <small>
-              {groqConfigured ? '✅ Groq AI Ready' : 
-               hfConfigured ? '✅ HF API Ready' : 
-               '⚠️ Local Analysis Only'}
+              {groqConfigured ? '✅ Groq AI Ready' : '⚠️ Local Analysis Only'}
             </small>
           </div>
         </div>
