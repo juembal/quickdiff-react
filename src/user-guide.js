@@ -169,19 +169,19 @@ class ReactUserGuide {
         
         modal.innerHTML = `
             <div class="quick-guide-modal-content" style="
-                background: linear-gradient(135deg, #F2F2F2 0%, #EAE4D5 100%);
+                background: #fafbfc;
                 border-radius: 16px;
                 max-width: 600px;
                 width: 90%;
                 max-height: 80vh;
                 overflow-y: auto;
-                box-shadow: 0 20px 60px rgba(182, 176, 159, 0.3);
+                box-shadow: 0 20px 60px rgba(44, 62, 80, 0.15);
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-                border: 1px solid #B6B09F;
+                border: 1px solid #d1d9e0;
             ">
                 <div style="
                     padding: 24px 32px 20px;
-                    border-bottom: 1px solid #B6B09F;
+                    border-bottom: 1px solid #d1d9e0;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -190,14 +190,14 @@ class ReactUserGuide {
                         margin: 0;
                         font-size: 24px;
                         font-weight: 700;
-                        color: #000000;
+                        color: #2c3e50;
                     ">QuickDiff Guide</h2>
                     <button id="close-guide-modal" style="
                         background: none;
                         border: none;
                         font-size: 28px;
                         cursor: pointer;
-                        color: #B6B09F;
+                        color: #7f8c8d;
                         padding: 0;
                         width: 32px;
                         height: 32px;
@@ -521,13 +521,13 @@ class ReactUserGuide {
                         justify-content: center;
                         align-items: center;
                         padding: 20px;
-                        background: #F2F2F2;
+                        background: #ecf0f1;
                         border-radius: 12px;
-                        border: 1px solid #B6B09F;
+                        border: 1px solid #d1d9e0;
                     ">
                         <button id="close-guide-footer" style="
-                            background: #000000;
-                            color: #F2F2F2;
+                            background: #2c3e50;
+                            color: #ffffff;
                             border: none;
                             padding: 12px 24px;
                             border-radius: 8px;
@@ -536,7 +536,7 @@ class ReactUserGuide {
                             font-weight: 500;
                             transition: all 0.3s ease;
                         ">Got it!</button>
-                        <span style="color: #000000; font-size: 14px;">Press F1 anytime to reopen this guide</span>
+                        <span style="color: #2c3e50; font-size: 14px;">Press F1 anytime to reopen this guide</span>
                     </div>
                 </div>
             </div>
@@ -555,8 +555,8 @@ class ReactUserGuide {
         style.textContent = `
             /* Quick Guide Modal Theme Support */
             [data-theme="dark"] .quick-guide-modal-content {
-                background: #000000 !important;
-                border: 1px solid #B6B09F !important;
+                background: #2a2a2a !important;
+                border: 1px solid #404040 !important;
                 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5) !important;
             }
             
@@ -569,53 +569,57 @@ class ReactUserGuide {
             [data-theme="dark"] .quick-guide-modal-content p,
             [data-theme="dark"] .quick-guide-modal-content span,
             [data-theme="dark"] .quick-guide-modal-content div {
-                color: #F2F2F2 !important;
+                color: #e0e0e0 !important;
             }
             
             /* Dark mode background overrides */
             [data-theme="dark"] .quick-guide-modal-content div[style*="background: #F2F2F2"] {
-                background: #B6B09F !important;
+                background: #3a3a3a !important;
             }
             
             /* Dark mode border overrides for inner cards */
             [data-theme="dark"] .quick-guide-modal-content div[style*="border: 1px solid #B6B09F"] {
-                border: 1px solid #F2F2F2 !important;
+                border: 1px solid #555555 !important;
             }
             
             [data-theme="dark"] .quick-guide-modal-content kbd {
-                background: #000000 !important;
-                border: 1px solid #F2F2F2 !important;
-                color: #F2F2F2 !important;
+                background: #1e1e1e !important;
+                border: 1px solid #555555 !important;
+                color: #e0e0e0 !important;
             }
             
             [data-theme="dark"] .quick-guide-modal-content kbd[style*="background: #EAE4D5"] {
-                background: #000000 !important;
+                background: #1e1e1e !important;
             }
             
             [data-theme="dark"] #close-guide-footer {
-                background: #F2F2F2 !important;
-                color: #000000 !important;
+                background: #888888 !important;
+                color: #1e1e1e !important;
             }
             
             [data-theme="dark"] #close-guide-modal {
-                color: #EAE4D5 !important;
+                color: #a0a0a0 !important;
             }
             
             [data-theme="dark"] #close-guide-modal:hover {
-                background: rgba(242, 242, 242, 0.1) !important;
-                color: #F2F2F2 !important;
+                background: rgba(136, 136, 136, 0.2) !important;
+                color: #e0e0e0 !important;
             }
             
             [data-theme="dark"] #restart-tour {
-                background: linear-gradient(135deg, #F2F2F2 0%, #EAE4D5 100%) !important;
-                color: #000000 !important;
-                border: 1px solid #EAE4D5 !important;
+                background: linear-gradient(135deg, #888888 0%, #666666 100%) !important;
+                color: #e0e0e0 !important;
+                border: 1px solid #555555 !important;
             }
             
             [data-theme="dark"] #restart-tour:hover {
-                background: linear-gradient(135deg, #EAE4D5 0%, #F2F2F2 100%) !important;
+                background: linear-gradient(135deg, #999999 0%, #777777 100%) !important;
                 transform: translateY(-2px) !important;
-                box-shadow: 0 8px 25px rgba(242, 242, 242, 0.2) !important;
+                box-shadow: 0 8px 25px rgba(136, 136, 136, 0.3) !important;
+            }
+            
+            [data-theme="dark"] .quick-guide-modal-content span[style*="color: #2c3e50"] {
+                color: #a0a0a0 !important;
             }
             
             /* Light theme hover effects */
