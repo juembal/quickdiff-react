@@ -55,7 +55,6 @@ function QuickDiffApp() {
   // Navigation state
   const [changes, setChanges] = useState([]);
   const [currentChangeIndex, setCurrentChangeIndex] = useState(-1);
-  const [minimapVisible, setMinimapVisible] = useState(false);
   
   // Initialize user guide
   useEffect(() => {
@@ -736,11 +735,6 @@ const handleFileLoad = async (file, target) => {
     }
   };
 
-  const toggleMinimap = () => {
-    setMinimapVisible(!minimapVisible);
-    showNotification(minimapVisible ? 'Minimap hidden' : 'Minimap shown');
-  };
-
   // Auto-detect language when text changes
   useEffect(() => {
     if (settings.autoDetectLanguage && (originalText.trim() || changedText.trim())) {
@@ -844,12 +838,6 @@ const handleFileLoad = async (file, target) => {
             toggleContrast();
             showNotification('⌨️ Ctrl+H: Contrast toggled');
             break;
-          case 'm':
-            // Always allow minimap toggle, even in text areas
-            e.preventDefault();
-            toggleMinimap();
-            showNotification('⌨️ Ctrl+M: Minimap toggled');
-            break;
           default:
             break;
         }
@@ -902,20 +890,6 @@ const handleFileLoad = async (file, target) => {
             showNotification('⌨️ Escape: AI results cleared');
           }
           break;
-        case 'ArrowUp':
-          // Only allow navigation shortcuts when not typing in text areas
-          if (e.ctrlKey && !isInTextArea) {
-            e.preventDefault();
-            navigateToPreviousChange();
-          }
-          break;
-        case 'ArrowDown':
-          // Only allow navigation shortcuts when not typing in text areas
-          if (e.ctrlKey && !isInTextArea) {
-            e.preventDefault();
-            navigateToNextChange();
-          }
-          break;
         case 'F1':
           // Always allow F1 for help, even in text areas
           e.preventDefault();
@@ -931,7 +905,7 @@ const handleFileLoad = async (file, target) => {
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [showResults, showAiResults, performComparison, clearAll, swapTexts, copyResults, toggleTheme, toggleContrast, toggleMinimap, clearAIResults, navigateToPreviousChange, navigateToNextChange, generateAIAnalysis, showNotification]);
+  }, [showResults, showAiResults, performComparison, clearAll, swapTexts, copyResults, toggleTheme, toggleContrast, clearAIResults, navigateToPreviousChange, navigateToNextChange, generateAIAnalysis, showNotification]);
 
   return (
     <div className="quickdiff-app">
@@ -979,14 +953,8 @@ const handleFileLoad = async (file, target) => {
             settings={settings}
             changes={changes}
             currentChangeIndex={currentChangeIndex}
-            minimapVisible={minimapVisible}
             onNavigatePrevious={navigateToPreviousChange}
             onNavigateNext={navigateToNextChange}
-            onToggleMinimap={toggleMinimap}
-            onNavigateToChange={(index) => {
-              setCurrentChangeIndex(index);
-              scrollToChange(index);
-            }}
             aiResults={aiResults}
             showAiResults={showAiResults}
             onClearAIResults={clearAIResults}

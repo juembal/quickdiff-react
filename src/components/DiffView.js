@@ -29,17 +29,17 @@ const DiffView = ({ diffResult, viewMode, currentChangeIndex }) => {
         <div className="diff-column">
           <h3>Original Text</h3>
           <div className="diff-content">
-            {diffResult.originalLines?.map((line, index) => 
+            {diffResult.originalLines ? diffResult.originalLines.map((line, index) => 
               renderDiffLine(line, index + 1, line.type)
-            )}
+            ) : null}
           </div>
         </div>
         <div className="diff-column">
           <h3>Changed Text</h3>
           <div className="diff-content">
-            {diffResult.changedLines?.map((line, index) => 
+            {diffResult.changedLines ? diffResult.changedLines.map((line, index) => 
               renderDiffLine(line, index + 1, line.type)
-            )}
+            ) : null}
           </div>
         </div>
       </div>

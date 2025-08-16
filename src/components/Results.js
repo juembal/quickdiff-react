@@ -2,18 +2,14 @@ import React from 'react';
 import ChangeSummary from './ChangeSummary';
 import DiffView from './DiffView';
 import AIResults from './AIResults';
-import Minimap from './Minimap';
 
 const Results = ({
   diffResult,
   settings,
   changes,
   currentChangeIndex,
-  minimapVisible,
   onNavigatePrevious,
   onNavigateNext,
-  onToggleMinimap,
-  onNavigateToChange,
   aiResults,
   showAiResults,
   onClearAIResults,
@@ -47,24 +43,8 @@ const Results = ({
           >
             ⬇️
           </button>
-          <div className="nav-divider"></div>
-          <button 
-            className="btn btn-secondary btn-export" 
-            onClick={onToggleMinimap}
-            title="Toggle Minimap"
-          >
-            🗺️ {minimapVisible ? 'Hide Map' : 'Show Map'}
-          </button>
         </div>
       </div>
-      
-      {minimapVisible && (
-        <Minimap 
-          changes={changes} 
-          currentChangeIndex={currentChangeIndex}
-          onChangeClick={onNavigateToChange}
-        />
-      )}
       
       <DiffView 
         diffResult={diffResult}

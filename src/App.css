@@ -935,6 +935,107 @@ body {
 }
 
 
+/* Dark theme word-level highlighting */
+[data-theme="dark"] .word-added {
+  background-color: rgba(72, 187, 120, 0.4);
+  color: #9ae6b4;
+  border: 1px solid #48bb78;
+}
+
+[data-theme="dark"] .word-removed {
+  background-color: rgba(245, 101, 101, 0.4);
+  color: #feb2b2;
+  border: 1px solid #f56565;
+}
+
+[data-theme="dark"] .char-added {
+  background-color: rgba(72, 187, 120, 0.6);
+  color: #c6f6d5;
+  border: 1px solid #48bb78;
+}
+
+[data-theme="dark"] .char-removed {
+  background-color: rgba(245, 101, 101, 0.6);
+  color: #fed7d7;
+  border: 1px solid #f56565;
+}
+
+/* Dark theme diff line highlighting */
+[data-theme="dark"] .diff-line.added {
+  background-color: rgba(72, 187, 120, 0.15);
+  border-left: 4px solid #48bb78;
+}
+
+[data-theme="dark"] .diff-line.removed {
+  background-color: rgba(245, 101, 101, 0.15);
+  border-left: 4px solid #f56565;
+}
+
+/* Navigation button styling - Light mode */
+.diff-navigation .btn-icon-only {
+  background: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s ease;
+}
+
+.diff-navigation .btn-icon-only:hover:not(:disabled) {
+  background: #e9ecef;
+  color: #212529;
+  border-color: #adb5bd;
+  transform: translateY(-1px);
+}
+
+.diff-navigation .btn-icon-only:disabled {
+  background: #f8f9fa;
+  color: #6c757d;
+  border-color: #dee2e6;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.change-counter {
+  background: #e9ecef;
+  color: #495057;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: 1px solid #dee2e6;
+}
+
+/* Navigation button styling - Dark mode */
+[data-theme="dark"] .diff-navigation .btn-icon-only {
+  background: #404040;
+  color: #e0e0e0;
+  border: 1px solid #555555;
+}
+
+[data-theme="dark"] .diff-navigation .btn-icon-only:hover:not(:disabled) {
+  background: #505050;
+  color: #ffffff;
+  border-color: #666666;
+}
+
+[data-theme="dark"] .diff-navigation .btn-icon-only:disabled {
+  background: #333333;
+  color: #666666;
+  border-color: #444444;
+  opacity: 0.5;
+}
+
+[data-theme="dark"] .change-counter {
+  background: #404040;
+  color: #e0e0e0;
+  border-color: #555555;
+}
+
 [data-theme="dark"] .minimap-container {
   background: #333333;
   border-color: #404040;
